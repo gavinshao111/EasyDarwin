@@ -1,1 +1,0 @@
-EasyPusher_FILE.exe -d 192.168.66.251 -p 554 -n easypusher_file.sdp
