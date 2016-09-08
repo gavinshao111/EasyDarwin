@@ -14,8 +14,8 @@
 #ifndef MAINPROCESS_H
 #define MAINPROCESS_H
 
-int sendDescReq(const char *req);
-int sendStopPushMqToCar(const char *req);
+int sendStartPushMq(const char *req);
+int sendStopPushMq(const char *fStreamName);
 
 #endif /* MAINPROCESS_H */
 

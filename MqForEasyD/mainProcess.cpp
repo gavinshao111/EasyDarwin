@@ -1,7 +1,7 @@
 
 #include <string.h>
 #include <unistd.h>
-
+#include <cstdlib>
 extern "C"{
     #include "MQTTAsync.h"
     #include "MQTTClient.h"
@@ -52,10 +52,8 @@ Accept: application/sdp\r\n
  *  */
 
 
-
-
-int sendStartPushMqToCar(const char *req){        
-
+//have not consider record mode.
+int sendStartPushMq(const char *req){        
     if (NULL == req)
         return -1;
     
@@ -70,7 +68,7 @@ int sendStartPushMqToCar(const char *req){
     UINT fileNameOfst = -1;
     UINT fileNameEndOfst = -1;
    
-    i += sizeof("DESCRIBE") - 1;
+    i += sizeof("OPTIONS") - 1;
     for (; ' ' == *(req+i); i++);
     
     urlOfst = i;
@@ -123,8 +121,13 @@ int sendStartPushMqToCar(const char *req){
     for (; '\0' != *(req+i) && ' ' != *(req+i) && '/' != *(req+i); i++){URLERR}
     fileNameEndOfst = i;
 
-    char strTopic[1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)] = {0};
-    strTopic[0] = '/';
+    //char strTopic[1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)] = {0};
+    //char* strTopic = (char *)malloc(sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
+    //memset(strTopic, 0, sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
+    char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    memset(strTopic, 0, 1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+            
+    *strTopic = '/';
     memcpy(strTopic + 1, req+clientIdOfst, videoTypeOfst - clientIdOfst);
     strlcpy(strTopic + 1 + videoTypeOfst - clientIdOfst, strVideoinfoAsk, maxPayLoadLen);
     
@@ -159,6 +162,7 @@ int sendStartPushMqToCar(const char *req){
             MQTTCLIENT_PERSISTENCE_NONE, NULL) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to connect create MQTTClient, return code %d\n", rc);
+        free(strTopic);
         return 3;
     }
     conn_opts.keepAliveInterval = 20;
@@ -166,6 +170,7 @@ int sendStartPushMqToCar(const char *req){
     if (rc = MQTTClient_connect(client, &conn_opts) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to connect to MQ server, return code %d\n", rc);
+        free(strTopic);
         return 4;
     }
     pubmsg.payload = strPayLoad;
@@ -175,20 +180,31 @@ int sendStartPushMqToCar(const char *req){
     if (rc = MQTTClient_publishMessage(client, strTopic, &pubmsg, &token) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to publishMessage to MQ server, return code %d\n", rc);
+        free(strTopic);
         return 5;
     } 
               
-    printf("DESCRIBE req sent.\n");
     //usleep(5000);
 
     MQTTClient_disconnect(client, 10000);
     MQTTClient_destroy(&client);
+    
+    printf("**************************************************************\nStart push MQ sent.\n**************************************************************\n");
+    
+    free(strTopic);
     return 0;
+    
 }
 
-int sendStopPushMqToCar(const char *req){
-    if (NULL == req)
+//have not consider record mode.
+// fStreamName is like realtime/$1234/1/realtime.sdp
+int sendStopPushMq(const char *fStreamName){
+    if (NULL == fStreamName)
         return -1;
+    
+    UINT clientIdOfst = -1;
+    UINT endOfClientIdOfst = -1;
+    int i = 0;
     
     char strPayLoad[maxPayLoadLen] = {0};    
     strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
@@ -233,19 +249,43 @@ int sendStopPushMqToCar(const char *req){
     pubmsg.qos = QOS;
     pubmsg.retained = 0;
 
-    char *strTopic = "/carleapmotorCLOUDE20160727inform/videoinfoAsk";
+
+    for (; '$' != *(fStreamName+i); i++){
+        if ('\0' == *(fStreamName+i))
+            return -1;        
+    }
+    clientIdOfst = ++i;
+    for (; '/' != *(fStreamName+i); i++){
+        if ('\0' == *(fStreamName+i))
+            return -1;        
+    }
+    endOfClientIdOfst = i;
+    if (endOfClientIdOfst <= clientIdOfst)
+        return -1;
+    
+    //strTopic should like  "/carleapmotorCLOUDE20160727inform/videoinfoAsk";
+    //char strTopic[endOfClientIdOfst - clientIdOfst + sizeof(strVideoinfoAsk) + 2] = {0};
+    UINT lenOfStrTopic = endOfClientIdOfst - clientIdOfst + sizeof(strVideoinfoAsk) + 3;
+    char *strTopic = (char*)malloc(lenOfStrTopic);
+    memset(strTopic, 0, lenOfStrTopic);
+    *strTopic = '/';
+    strncpy(strTopic + 1 , fStreamName + clientIdOfst, endOfClientIdOfst - clientIdOfst);
+    strlcat(strTopic, "/", lenOfStrTopic);
+    strlcat(strTopic, strVideoinfoAsk, lenOfStrTopic);
+
     if (rc = MQTTClient_publishMessage(client, strTopic, &pubmsg, &token) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to publishMessage to MQ server, return code %d\n", rc);
+        free(strTopic);
         return 5;
     } 
               
-    printf("StopPush MQ sent.\n");
 
     MQTTClient_disconnect(client, 10000);
     MQTTClient_destroy(&client);
     
+    printf("**************************************************************\nStopPush MQ sent.\n**************************************************************\n");
     
-    
+    free(strTopic);
     return 0;
 }

@@ -7,13 +7,13 @@ CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Debug configuration
-CND_PLATFORM_Debug=None-Windows
+CND_PLATFORM_Debug=GNU-Linux
 CND_ARTIFACT_DIR_Debug=Debug
 CND_ARTIFACT_NAME_Debug=easydarwin
 CND_ARTIFACT_PATH_Debug=Debug/easydarwin
-CND_PACKAGE_DIR_Debug=dist/Debug/None-Windows/package
+CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
 CND_PACKAGE_NAME_Debug=easydarwin.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/None-Windows/package/easydarwin.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/easydarwin.tar
 # i386 configuration
 CND_PLATFORM_i386=None-Windows
 CND_ARTIFACT_DIR_i386=i386

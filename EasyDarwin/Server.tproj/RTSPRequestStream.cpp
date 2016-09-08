@@ -133,15 +133,15 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 				}
 			}
                         
-                        if ('D' == *(fRequest.Ptr) || 'd' == *(fRequest.Ptr)){
-                            qtss_printf("\n\n**********************************************\nDetecting Desc request.\n");
+                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
+                            //qtss_printf("\n\n**********************************************\nDetecting Desc request.\n");
                             int rc = -1;
-                            rc = sendDescReq(fRequest.Ptr);
-                            if (0 != rc)
-                                qtss_printf("sendDescReq return code: %d\n", rc);
-                            else
-                                sleep(4);   //send MQ to car, waiting for car to push media stream.
-                            qtss_printf("End of detecting Desc request.\n**********************************************\n");
+                            rc = sendStartPushMq(fRequest.Ptr);
+                            if (0 != rc && 2 != rc)
+                                qtss_printf("sendStartPushMq return code: %d\n", rc);
+                            else if(0 == rc)
+                                sleep(1);   //send MQ to car, waiting for car to push media stream.
+                            //qtss_printf("End of detecting Desc request.\n**********************************************\n");
                         }
                         
                         if (fDecode)
