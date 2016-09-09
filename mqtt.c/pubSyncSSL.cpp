@@ -1,5 +1,5 @@
 /*
-g++ pubSyncSSL.cpp -I ../../mqtt.c/include/ -L ../../mqtt.c/lib -lpaho-mqtt3cs -lpaho-mqtt3as -DNO_PERSISTENCE=1 -o pubSyncSSL
+g++ pubSyncSSL.cpp -I include/ -L lib/ -lpaho-mqtt3cs -lpaho-mqtt3as -DNO_PERSISTENCE=1 -o pubSyncSSL
 */
 
 #include "stdio.h"
@@ -8,11 +8,13 @@ g++ pubSyncSSL.cpp -I ../../mqtt.c/include/ -L ../../mqtt.c/lib -lpaho-mqtt3cs -
 #include <iostream>
 #include "MQTTClient.h"
 using namespace std;
-#define ADDRESS     "ssl://120.27.188.84:8883"
+//#define ADDRESS     "ssl://120.27.188.84:8883"
 //#define ADDRESS     "ssl://localhost:1883"
+#define ADDRESS     argv[1]
+
 #define CLIENTID    "mqtt.c_MQTTClient_publish"
 #define TOPIC       "MQTTTest"
-#define PAYLOAD     argv[1]
+#define PAYLOAD     argv[2]
 #define QOS         1
 #define TIMEOUT     10000L
 
@@ -22,12 +24,12 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    if(argc <2){
-        cout << "please input PAYLOAD in arg2." << endl;
+    if(argc < 3){
+        cout << "please input ADDRESS & PAYLOAD in cmd line." << endl;
         return 0;
     }
 
-    cout << "argv[1]: " << argv[1] << endl;
+    //cout << "argv[1]: " << argv[1] << endl;
     
     MQTTClient client;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
@@ -47,8 +49,8 @@ int main(int argc, char* argv[])
     ssl_opts.enableServerCertAuth = 0;
     conn_opts.ssl = &ssl_opts;
         
-	MQTTClient_nameValue* version = MQTTClient_getVersionInfo();
-    cout<<"tVersionInfo: "<<version->name<<". "<<version->value<<endl;
+//	MQTTClient_nameValue* version = MQTTClient_getVersionInfo();
+//    cout<<"VersionInfo: "<<version->name<<". "<<version->value<<endl;
 	
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
     {
