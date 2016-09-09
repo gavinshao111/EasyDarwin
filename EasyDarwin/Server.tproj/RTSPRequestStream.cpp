@@ -136,13 +136,25 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                         if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
                             //qtss_printf("\n\n**********************************************\nDetecting Desc request.\n");
                             int rc = -1;
+                            //send MQ to car, waiting for car to push media stream.
                             rc = sendStartPushMq(fRequest.Ptr);
-                            if (0 != rc && 2 != rc)
-                                qtss_printf("sendStartPushMq return code: %d\n", rc);
-                            else if(0 == rc)
-                                sleep(1);   //send MQ to car, waiting for car to push media stream.
+                            if (1 == rc){
+                                    qtss_printf("\n\n**************************************************************Start push MQ sent.");
+                                sleep(1);
+                            }                                
+                            else if(0 != rc)
+                                qtss_printf("\n\n**************************************************************sendStartPushMq fial, return code: %d\n", rc);
                             //qtss_printf("End of detecting Desc request.\n**********************************************\n");
                         }
+//                        else if ('P' == *(fRequest.Ptr) || 'p' == *(fRequest.Ptr)){
+//                            //int rc = sendStopPushMqForPauseReq(fRequest.Ptr);
+//                            int rc = 0;
+//                            if (0 == rc)
+//                                qtss_printf("\n\n**************************************************************StopPush MQ for sent.");
+//                            else
+//                                qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);                               
+//                        }
+                            
                         
                         if (fDecode)
 			{
