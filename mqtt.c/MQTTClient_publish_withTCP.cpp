@@ -1,5 +1,5 @@
 /*
-g++ MQTTClient_publish.cpp -I ../../mqtt.c/include/ -L ../../mqtt.c/lib -lpaho-mqtt3c -DNO_PERSISTENCE=1 -o mq_publish
+g++ MQTTClient_publish_withTCP.cpp -I include/ -L 2ndbuild/src/ -lpaho-mqtt3c -DNO_PERSISTENCE=1 -o publishTcp
 */
 
 #include "stdio.h"
@@ -8,8 +8,8 @@ g++ MQTTClient_publish.cpp -I ../../mqtt.c/include/ -L ../../mqtt.c/lib -lpaho-m
 #include <iostream>
 #include "MQTTClient.h"
 using namespace std;
-#define ADDRESS     "ssl://120.27.188.84:8883"
-//#define ADDRESS     "ssl://localhost:1883"
+//define ADDRESS     "ssl://120.27.188.84:8883"
+#define ADDRESS     "tcp://localhost:1883"
 #define CLIENTID    "mqtt.c_MQTTClient_publish"
 #define TOPIC       "MQTTTest"
 #define PAYLOAD     argv[1]
@@ -40,12 +40,6 @@ int main(int argc, char* argv[])
             MQTTCLIENT_PERSISTENCE_NONE, NULL);
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
-    //conn_opts.MQTTVersion = MQTTVERSION_3_1;
-    conn_opts.username = "easydarwin";
-    conn_opts.password = "123456";
-
-	MQTTClient_nameValue* version = MQTTClient_getVersionInfo();
-    cout<<"tVersionInfo: "<<version->name<<". "<<version->value<<endl;
 	
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
     {

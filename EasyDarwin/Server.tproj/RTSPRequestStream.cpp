@@ -132,30 +132,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 					return sockErr;
 				}
 			}
-                        
-                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
-                            //qtss_printf("\n\n**********************************************\nDetecting Desc request.\n");
-                            int rc = -1;
-                            //send MQ to car, waiting for car to push media stream.
-                            rc = sendStartPushMq(fRequest.Ptr);
-                            if (1 == rc){
-                                    qtss_printf("\n\n**************************************************************Start push MQ sent.");
-                                sleep(1);
-                            }                                
-                            else if(0 != rc)
-                                qtss_printf("\n\n**************************************************************sendStartPushMq fial, return code: %d\n", rc);
-                            //qtss_printf("End of detecting Desc request.\n**********************************************\n");
-                        }
-//                        else if ('P' == *(fRequest.Ptr) || 'p' == *(fRequest.Ptr)){
-//                            //int rc = sendStopPushMqForPauseReq(fRequest.Ptr);
-//                            int rc = 0;
-//                            if (0 == rc)
-//                                qtss_printf("\n\n**************************************************************StopPush MQ for sent.");
-//                            else
-//                                qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);                               
-//                        }
-                            
-                        
+                                                
                         if (fDecode)
 			{
 				// If we need to decode this data, do it now.
@@ -200,6 +177,28 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 		{
 			DateBuffer theDate;
 			DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
+
+                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
+                            int rc = -1;
+                            //send MQ to car, waiting for car to push media stream.
+                            
+                            rc = sendStartPushMq(fRequest.Ptr);
+                            if (1 == rc){
+                                qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
+                                sleep(4);
+                            }                                
+                            else if(0 != rc)
+                                qtss_printf("\n\n**************************************************************sendStartPushMq fial, return code: %d\n\n\n", rc);
+                        }
+//                        else if ('P' == *(fRequest.Ptr) || 'p' == *(fRequest.Ptr)){
+//                            //int rc = sendStopPushMqForPauseReq(fRequest.Ptr);
+//                            int rc = 0;
+//                            if (0 == rc)
+//                                qtss_printf("\n\n**************************************************************StopPush MQ for sent.");
+//                            else
+//                                qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);                               
+//                        }
+                            
 			qtss_printf("\n\n#C->S:\n#time: ms=%"   _U32BITARG_   " date=%s\n", (UInt32)OS::StartTimeMilli_Int(), theDate.GetDateBuffer());
 
 			if (fSocket != NULL)

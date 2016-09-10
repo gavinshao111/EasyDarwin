@@ -8,49 +8,54 @@ g++ pubSyncSSL.cpp -I include/ -L lib/ -lpaho-mqtt3cs -lpaho-mqtt3as -DNO_PERSIS
 #include <iostream>
 #include "MQTTClient.h"
 using namespace std;
-//#define ADDRESS     "ssl://120.27.188.84:8883"
+#define ADDRESS     "ssl://120.27.188.84:8883"
 //#define ADDRESS     "ssl://localhost:1883"
-#define ADDRESS     argv[1]
+//#define ADDRESS     argv[1]
 
 #define CLIENTID    "mqtt.c_MQTTClient_publish"
 #define TOPIC       "MQTTTest"
-#define PAYLOAD     argv[2]
+#define PAYLOAD     "hello"
 #define QOS         1
 #define TIMEOUT     10000L
 
 #define MQTTCLIENT_PERSISTENCE_NONE 1
 
+const char *pathOfServerPublicKey = "/home/panzhao/mqtt_client/EasyDarwin/emqtt.pem";
 
 
 int main(int argc, char* argv[])
 {
-    if(argc < 3){
-        cout << "please input ADDRESS & PAYLOAD in cmd line." << endl;
-        return 0;
-    }
+//    if(argc < 2){
+//        cout << "please input PAYLOAD in cmd line." << endl;
+//        return 0;
+//    }
 
-    //cout << "argv[1]: " << argv[1] << endl;
+    cout << "123 "<< endl;
     
     MQTTClient client;
-    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     MQTTClient_SSLOptions ssl_opts = MQTTClient_SSLOptions_initializer;
+    ssl_opts.trustStore = pathOfServerPublicKey;
+    ssl_opts.keyStore = pathOfServerPublicKey;
+    ssl_opts.enableServerCertAuth = 0;
+
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     conn_opts.connectTimeout = 3;
     MQTTClient_message pubmsg = MQTTClient_message_initializer;
     MQTTClient_deliveryToken token;
     int rc;
 
-    MQTTClient_create(&client, ADDRESS, CLIENTID,
-            MQTTCLIENT_PERSISTENCE_NONE, NULL);
+    if ((rc = MQTTClient_create(&client, ADDRESS, CLIENTID,
+            MQTTCLIENT_PERSISTENCE_NONE, NULL)) != MQTTCLIENT_SUCCESS){
+            printf("Failed to create, return code %d\n", rc);
+            exit(EXIT_FAILURE);        
+    }
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
     //conn_opts.MQTTVersion = MQTTVERSION_3_1;
     conn_opts.username = "easydarwin";
     conn_opts.password = "123456";
-    ssl_opts.enableServerCertAuth = 0;
-    conn_opts.ssl = &ssl_opts;
-        
-//	MQTTClient_nameValue* version = MQTTClient_getVersionInfo();
-//    cout<<"VersionInfo: "<<version->name<<". "<<version->value<<endl;
+
+    conn_opts.ssl = &ssl_opts;        
 	
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
     {
