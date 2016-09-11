@@ -34,7 +34,9 @@ include Makefile
 OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
-OBJECTFILES=
+OBJECTFILES= \
+	${OBJECTDIR}/mainProcess.o \
+	${OBJECTDIR}/strlfunc.o
 
 
 # C Compiler Flags
@@ -51,7 +53,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../mqtt.c/lib
+LDLIBSOPTIONS=-L../mqtt.c/2ndbuild/src
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -59,7 +61,17 @@ LDLIBSOPTIONS=-L../mqtt.c/lib
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1 -shared -fPIC
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1 -shared -fPIC
+
+${OBJECTDIR}/mainProcess.o: mainProcess.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -I../mqtt.c/include -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mainProcess.o mainProcess.cpp
+
+${OBJECTDIR}/strlfunc.o: strlfunc.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -I../mqtt.c/include -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/strlfunc.o strlfunc.cpp
 
 # Subprojects
 .build-subprojects:

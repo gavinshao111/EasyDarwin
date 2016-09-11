@@ -6,16 +6,16 @@
 
 # Macros
 TOP=`pwd`
-CND_PLATFORM=GNU-Linux
+CND_PLATFORM=None-Windows
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
-CND_DLIB_EXT=so
+CND_DLIB_EXT=dll
 NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
 OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}
 OUTPUT_BASENAME=libMqForEasyD.${CND_DLIB_EXT}
-PACKAGE_TOP_DIR=libMqForEasyD.so/
+PACKAGE_TOP_DIR=libMqForEasyD.dll/
 
 # Functions
 function checkReturnCode
@@ -60,15 +60,15 @@ mkdir -p ${NBTMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory "${NBTMPDIR}/libMqForEasyD.so/lib"
+makeDirectory "${NBTMPDIR}/libMqForEasyD.dll/lib"
 copyFileToTmpDir "${OUTPUT_PATH}" "${NBTMPDIR}/${PACKAGE_TOP_DIR}lib/${OUTPUT_BASENAME}" 0644
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libMqForEasyD.so.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libMqForEasyD.dll.tar
 cd ${NBTMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libMqForEasyD.so.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libMqForEasyD.dll.tar *
 checkReturnCode
 
 # Cleanup

@@ -21,8 +21,8 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-Linux
-CND_DLIB_EXT=so
+CND_PLATFORM=None-Windows
+CND_DLIB_EXT=dll
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -34,7 +34,9 @@ include Makefile
 OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
-OBJECTFILES=
+OBJECTFILES= \
+	${OBJECTDIR}/mainProcess.o \
+	${OBJECTDIR}/strlfunc.o
 
 
 # C Compiler Flags
@@ -59,7 +61,17 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -shared -fPIC
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -shared -fPIC
+
+${OBJECTDIR}/mainProcess.o: mainProcess.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mainProcess.o mainProcess.cpp
+
+${OBJECTDIR}/strlfunc.o: strlfunc.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/strlfunc.o strlfunc.cpp
 
 # Subprojects
 .build-subprojects:
