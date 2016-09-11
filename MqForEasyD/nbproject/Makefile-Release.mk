@@ -53,7 +53,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../mqtt.c/lib
+LDLIBSOPTIONS=-L../../paho.mqtt.c/build/output
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -65,12 +65,12 @@ libMqForEasyD.${CND_DLIB_EXT}: ${OBJECTFILES}
 ${OBJECTDIR}/mainProcess.o: mainProcess.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../mqtt.c/include -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mainProcess.o mainProcess.cpp
+	$(COMPILE.cc) -O2 -I../../paho.mqtt.c/src -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mainProcess.o mainProcess.cpp
 
 ${OBJECTDIR}/strlfunc.o: strlfunc.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../mqtt.c/include -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/strlfunc.o strlfunc.cpp
+	$(COMPILE.cc) -O2 -I../../paho.mqtt.c/src -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/strlfunc.o strlfunc.cpp
 
 # Subprojects
 .build-subprojects:

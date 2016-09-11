@@ -55,7 +55,7 @@
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../mqtt.c/include</pElem>
+            <pElem>../../paho.mqtt.c/src</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>
@@ -67,7 +67,7 @@
         <linkerTool>
           <output>libMqForEasyD.${CND_DLIB_EXT}</output>
           <linkerAddLib>
-            <pElem>../mqtt.c/lib</pElem>
+            <pElem>../../paho.mqtt.c/build/output</pElem>
           </linkerAddLib>
           <commandLine>-lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1</commandLine>
         </linkerTool>
