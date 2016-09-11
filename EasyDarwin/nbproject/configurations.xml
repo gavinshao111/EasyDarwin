@@ -2809,8 +2809,7 @@
             <pElem>../EasyProtocol/jsoncpp/${CND_CONF}</pElem>
             <pElem>Lib/x64</pElem>
             <pElem>../EasyRedisClient/${CND_CONF}</pElem>
-            <pElem>../MqForEasyD/dist/Release/GNU-Linux</pElem>
-            <pElem>../mqtt.c/lib</pElem>
+            <pElem>../MqForEasyD/</pElem>
           </linkerAddLib>
           <commandLine>-lCommonUtilitiesLib -lpthread -ldl -lstdc++ -lm -lcrypt -lEasyProtocol -ljsoncpp -leasyredisclient -lMqForEasyD</commandLine>
         </linkerTool>

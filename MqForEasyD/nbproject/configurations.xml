@@ -65,8 +65,9 @@
           <developmentMode>5</developmentMode>
         </asmTool>
         <linkerTool>
+          <output>libMqForEasyD.${CND_DLIB_EXT}</output>
           <linkerAddLib>
-            <pElem>../mqtt.c/2ndbuild/src</pElem>
+            <pElem>../mqtt.c/lib</pElem>
           </linkerAddLib>
           <commandLine>-lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1</commandLine>
         </linkerTool>

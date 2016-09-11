@@ -1,6 +1,5 @@
 /*
-g++ pubSyncSSL.cpp -I include/ -L lib/ -lpaho-mqtt3cs -lpaho-mqtt3as -DNO_PERSISTENCE=1 -o pubSyncSSL
-*/
+g++ pubSyncSSL.cpp -I include/ -L 2ndbuild/src/ -lpaho-mqtt3cs -lpaho-mqtt3as -DNO_PERSISTENCE=1 -DOPENSSL=1 -o pubSyncSSL*/
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -36,6 +35,8 @@ int main(int argc, char* argv[])
     MQTTClient_SSLOptions ssl_opts = MQTTClient_SSLOptions_initializer;
     ssl_opts.trustStore = pathOfServerPublicKey;
     ssl_opts.keyStore = pathOfServerPublicKey;
+    ssl_opts.privateKey = "/home/panzhao/mqtt_client/EasyDarwin/privkey.pem";
+    ssl_opts.privateKeyPassword = "123456";
     ssl_opts.enableServerCertAuth = 0;
 
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;

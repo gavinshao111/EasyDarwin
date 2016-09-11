@@ -16,9 +16,9 @@ CND_PACKAGE_NAME_Debug=libMqForEasyD.dll.tar
 CND_PACKAGE_PATH_Debug=dist/Debug/None-Windows/package/libMqForEasyD.dll.tar
 # Release configuration
 CND_PLATFORM_Release=GNU-Linux
-CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
+CND_ARTIFACT_DIR_Release=
 CND_ARTIFACT_NAME_Release=libMqForEasyD.so
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/libMqForEasyD.so
+CND_ARTIFACT_PATH_Release=libMqForEasyD.so
 CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
 CND_PACKAGE_NAME_Release=libMqForEasyD.so.tar
 CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/libMqForEasyD.so.tar

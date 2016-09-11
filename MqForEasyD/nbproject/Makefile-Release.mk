@@ -53,15 +53,14 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../mqtt.c/2ndbuild/src
+LDLIBSOPTIONS=-L../mqtt.c/lib
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk libMqForEasyD.${CND_DLIB_EXT}
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}: ${OBJECTFILES}
-	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1 -shared -fPIC
+libMqForEasyD.${CND_DLIB_EXT}: ${OBJECTFILES}
+	${LINK.cc} -o libMqForEasyD.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -lpaho-mqtt3a -lpaho-mqtt3as -lpaho-mqtt3c -lpaho-mqtt3cs -DNO_PERSISTENCE=1 -shared -fPIC
 
 ${OBJECTDIR}/mainProcess.o: mainProcess.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -79,7 +78,7 @@ ${OBJECTDIR}/strlfunc.o: strlfunc.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libMqForEasyD.${CND_DLIB_EXT}
+	${RM} libMqForEasyD.${CND_DLIB_EXT}
 
 # Subprojects
 .clean-subprojects:
