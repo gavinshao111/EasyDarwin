@@ -1,4 +1,4 @@
-//g++ sendStop.cpp -L dist/Release/GNU-Linux/ -lMqForEasyD -o sendStop
+//g++ sendStop.cpp -L. -lMqForEasyD -o sendStop
 #include <stdio.h>
 #include <iostream>
 #include "mainProcess.h"
