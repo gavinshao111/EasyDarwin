@@ -412,9 +412,9 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
                 
                 int rc = sendStopPushMqWhenThereIsNoClient(fStreamName);
                 if (0 == rc)
-                    qtss_printf("\n\n**************************************************************StopPush MQ sent.");
+                    qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
                 else
-                    qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);
+                    qtss_printf("\n\n********************************* sendStopPushMq fial, return code: %d\n\n\n", rc);
 	}
 }
 

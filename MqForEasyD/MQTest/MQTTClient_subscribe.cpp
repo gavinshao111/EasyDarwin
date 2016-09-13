@@ -53,10 +53,10 @@ void connlost(void *context, char *cause)
 int main(int argc, char* argv[])
 {
     string url = "tcp://120.27.188.84:1883";
-    string topic = "MQTTTest";
+    string topic = "/MQTTTest";
     string tmp;
 
-    cout<<"Default Server URL is tcp://120.27.188.84:1883. Override? (y / n) ";
+    cout<<"Default Server URL is "<<url<<"  Override? (y / n) ";
     cin>>tmp;
     if('y' == tmp.at(0) || 'Y' == tmp.at(0)){
         cout<<"Input Server URL: ";
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     }
     
         
-    cout<<"Default TOPIC is MQTTTest. Override? ";
+    cout<<"Default TOPIC is "<<topic<<"  Override? ";
     cin>>tmp;
     if('y' == tmp.at(0) || 'Y' == tmp.at(0)){
         cout<<"Input TOPIC: ";
