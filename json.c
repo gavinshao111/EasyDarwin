@@ -1,9 +1,9 @@
 {
-"ServiceType":"viedoPlayer"
-"Data_Type": "Realtime" / "Recording"
-"URL":"rtsp://172.17.4.9:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp"
-"VideoType":"SD" / "HD"
-"Operation":"Stop" / "Begin"
+"ServiceType":"viedoPlayer",
+"Data_Type": "Realtime" / "Recording",
+"URL":"rtsp://172.17.4.9:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp",
+"VideoType":"SD" / "HD",
+"Operation":"Stop" / "Begin",
 }
 
 EasyDarwin与车机MQTT的实时视频通讯JSON发送
