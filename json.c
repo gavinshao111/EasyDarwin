@@ -1,8 +1,8 @@
 {
-"ServiceType":"viedoPlayer"
-"Data_Type": "Realtime" / "Recording"
-"URL":"rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp"
-"VideoType":"SD" / "HD"
+"ServiceType":"viedoPlayer",
+"Data_Type": "Realtime" / "Recording",
+"URL":"rtsp://172.17.4.9:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp",
+"VideoType":"SD" / "HD",
 "Operation":"Stop" / "Begin"
 }
 
