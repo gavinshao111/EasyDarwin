@@ -56,3 +56,4 @@ rtsp://172.17.4.9:8888/realtime/$1234/1/realtime.sdp
 
 play record in EasyDarwin:
 rtsp://172.17.4.9:8888/testAfterHint.mp4
+rtsp://120.27.188.84:8888/testAfterHint.mp4
