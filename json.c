@@ -1,7 +1,7 @@
 {
 "ServiceType":"viedoPlayer",
 "Data_Type": "Realtime" / "Recording",
-"URL":"rtsp://172.17.4.9:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp",
+"URL":"rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp",
 "VideoType":"SD" / "HD",
 "Operation":"Stop" / "Begin",
 }
@@ -48,12 +48,12 @@ OPTIONS rtsp://10.30.16.216:8888/realtime/$1234/0/realtime.sdp RTSP/1.0\r\n
 CSeq: 17\r\n
 
 record
-rtsp://172.17.4.9:8888/record/$carleapmotorCLOUDE20160727inform/1/2016-08-30_113613.sdp 
+rtsp://120.27.188.84:8888/record/$carleapmotorCLOUDE20160727inform/1/2016-08-30_113613.sdp 
 
 
 test:
-rtsp://172.17.4.9:8888/realtime/$1234/1/realtime.sdp
+rtsp://120.27.188.84:8888/realtime/$1234/1/realtime.sdp
 
 play record in EasyDarwin:
-rtsp://172.17.4.9:8888/testAfterHint.mp4
+rtsp://120.27.188.84:8888/testAfterHint.mp4
 rtsp://120.27.188.84:8888/testAfterHint.mp4
