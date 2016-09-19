@@ -2,6 +2,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <iostream>
+using namespace std;
 extern "C"{
     #include "MQTTAsync.h"
     #include "MQTTClient.h"
@@ -19,8 +21,8 @@ extern "C"{
 #define PRINTERR(ERRTYPE) printf("%s format error:\n%s\n", (ERRTYPE), req);return 10;
 //MQ
 const char *strClientIdForMQ = "EasyDarwin";
-//const char *strMQServerAddress = "tcp://120.27.188.84:8883";
-const char *strMQServerAddress = "tcp://localhost:1883";
+const char *strMQServerAddress = "tcp://120.27.188.84:1883";
+//const char *strMQServerAddress = "tcp://localhost:1883";
 //RTSP
 const char *strVideoinfoAsk = "videoinfoAsk";
 //EasyDarwin与车机的MQ
@@ -194,7 +196,6 @@ int sendStartPushMq(const char *req){
     
 }
 
-//have not consider record mode.
 // fStreamName is like realtime/$1234/1/realtime.sdp
 int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     if (NULL == fStreamName)
@@ -204,23 +205,18 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     UINT endOfClientIdOfst = -1;
     int i = 0;
     
-    char strPayLoad[maxPayLoadLen] = {0};    
-    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
-    strlcat(strPayLoad, strServiceType, maxPayLoadLen);
-    strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
-    //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
-    strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
-    //strncat(strPayLoad, req + urlOfst, fileNameEndOfst - urlOfst);
-    strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);
-    
-//    if ('0' == *(req + videoTypeOfst))
-//        strlcat(strPayLoad, "HD", maxPayLoadLen);
-//    else
-//        strlcat(strPayLoad, "SD", maxPayLoadLen);
-    
-    strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
-    strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
-    strlcat(strPayLoad, "\"}", maxPayLoadLen);
+//    char strPayLoad[maxPayLoadLen] = {0};    
+//    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
+//    strlcat(strPayLoad, strServiceType, maxPayLoadLen);
+//    strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
+//    //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
+//    strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
+//    //strncat(strPayLoad, req + urlOfst, fileNameEndOfst - urlOfst);
+//    strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);        
+//    strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
+//    strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
+//    strlcat(strPayLoad, "\"}", maxPayLoadLen);
+    char *strPayLoad = "{\"ServiceType\":\"\", \"Data_Type\": \"\", \"URL\":\"\", \"VideoType\":\"\" , \"Operation\":\"\" }";
 
     for (; '$' != *(fStreamName+i); i++){
         if ('\0' == *(fStreamName+i))
@@ -255,7 +251,7 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     free(strTopic);
     return 0;
 }
-
+/*
 int sendStopPushMqForPauseReq(const char *req)
 {
     if (NULL == req)
@@ -333,7 +329,7 @@ int sendStopPushMqForPauseReq(const char *req)
     free(strTopic);
     return 0;
 }
-
+*/
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad)
 {
     MQTTClient client;
@@ -351,6 +347,9 @@ int publishMq(const char *url, const char *clientId, const char *Topic, const ch
     }
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
+    conn_opts.username = "easydarwin";
+    conn_opts.password = "123456";
+    
     if (rc = MQTTClient_connect(client, &conn_opts) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to connect to MQ server, return code %d\n", rc);
@@ -371,4 +370,3 @@ int publishMq(const char *url, const char *clientId, const char *Topic, const ch
     
     return 0;
 }
-

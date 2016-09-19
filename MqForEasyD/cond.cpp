@@ -4,59 +4,75 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;/*初始化互斥锁*/
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;/*初始化条件变量*/
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *dealCarSetup(void *);
 void *dealAppOption(void *);
-
-pthread_cond_t cond;
-pthread_mutex_t mutex;
+void *counting(void *){
+	int i = 0;
+	for(;i<15;i++){
+		printf("%d\n", i);
+		sleep(1);
+	}
+	return 0;
+}
 
 int main(void)
 {	
-	pthread_attr_t a; //线程属性
-	pthread_attr_init(&a);  //初始化线程属性
-	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);      //设置线程属性    
+	pthread_attr_t a;
+	pthread_attr_init(&a);
+	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
 	pthread_t t_a;
     pthread_t t_b;
+	pthread_t t_c;
+	
+	//pthread_create(&t_c,&a,&counting,(void *)NULL);
 	
 	char ch = 0;
 	while(true){
 		ch = 0;
 		ch = getchar();
-		if ('o' == ch || 'O' == ch)
-			pthread_create(&t_b,&a,dealAppOption,(void *)NULL); /*检测 app option*/
-		else if ('s' == ch || 'S' == ch)
-			pthread_create(&t_a,&a,dealCarSetup,(void *)NULL);/*检测 car setup */
-		else
+		if ('o' == ch || 'O' == ch){
+			//printf("1\n");
+			pthread_create(&t_b,&a,&dealAppOption,(void *)NULL);
+			pthread_create(&t_c,&a,&counting,(void *)NULL);
+		}
+		else if ('s' == ch || 'S' == ch){
+			//printf("2.\n");
+			pthread_create(&t_a,&a,&dealCarSetup,(void *)NULL);
+		}
+		else if ('q' == ch || 'Q' == ch)
+		{
+			//printf("3.\n");
 			break;
+		}
     
     }
-	//pthread_join(t_a, NULL);/*等待进程t_b结束*/
-	//pthread_join(t_b, NULL);/*等待进程t_b结束*/
+	//pthread_join(t_a, NULL);
+	//pthread_join(t_b, NULL);
+	printf("done.\n");
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
     return 0;
 }
 /*
 int pthread_cond_timedwait(pthread_cond_t *cond,pthread_mutex_t mytex,const struct timespec *abstime);
-解锁线程锁
-等待线程唤醒，并且条件为true
-加锁线程锁.
+unlock the mutex, wait for signal, lock the mutex.
 */
 
 //if recive car's setup, send a signal to th2.
 void *dealCarSetup(void *junk)
 {
+	printf("recive car SETUP.\n");
 	int rc = -1;
 	pthread_mutex_lock(&mutex);	
-	rc = pthread_cond_signal(&cond);/*条件改变，发送信号，通知thread2进程*/
+	rc = pthread_cond_signal(&cond);
 	
 	pthread_mutex_unlock(&mutex);
 	printf("signal sent. rc = %d\n", rc);
 		
-	return;
+	return 0;
 }
 /*
 if recive a App Option, send MQ, then wait until signal or timeout.
@@ -65,8 +81,8 @@ void *dealAppOption(void *junk)
 {
 	printf("recive app option, MQ sent.\n");
 	int rc = -1;
-	struct timespec timeout;　　//定义时间点
-	timeout.tv_sec=time(0)+4; //time(0) 代表的是当前时间 而tv_sec 是指的是秒
+	struct timespec timeout;
+	timeout.tv_sec=time(0)+4;
 	timeout.tv_nsec=0; 	
 	
 	//sendMQ();
@@ -76,7 +92,7 @@ void *dealAppOption(void *junk)
 	pthread_mutex_unlock(&mutex);
 	printf("thread dealAppOption awake, rc = %d\n", rc);
 		
-	return;
+	return 0;
 }
 
 //pthread_detach(pthread_self())

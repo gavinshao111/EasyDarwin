@@ -44,8 +44,8 @@ EasyDarwin与车机MQTT的录像通讯JSON发送
 
 
 realtime url:
-OPTIONS rtsp://10.30.16.216:8888/realtime/$1234/0/realtime.sdp RTSP/1.0\r\n
-CSeq: 17\r\n
+rtsp://120.27.188.84:8888/realtime/$1234/0/realtime.sdp
+rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp
 
 record
 rtsp://120.27.188.84:8888/record/$carleapmotorCLOUDE20160727inform/1/2016-08-30_113613.sdp 
