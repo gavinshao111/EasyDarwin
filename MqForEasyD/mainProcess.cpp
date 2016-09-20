@@ -197,28 +197,50 @@ int sendStartPushMq(const char *req){
     
 }
 
-// fStreamName is like realtime/$1234/1/realtime.sdp
-int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
-    if (NULL == fStreamName)
+/* 
+ * in ReflectorSession.cpp, fStreamName is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime"
+ * in QTSSFileModule.cpp, is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp"
+ * so we need 
+*/
+int sendStopPushMqWhenThereIsNoClient(const char *url){
+    if (NULL == url)
         return -1;
     
     UINT clientIdOfst = -1;
     UINT endOfClientIdOfst = -1;
+    UINT endOfFileNameOfst = -1;
     int i = 0;
     
 
-    for (; '$' != *(fStreamName+i); i++){
-        if ('\0' == *(fStreamName+i))
+    for (; '$' != *(url+i); i++){
+        if ('\0' == *(url+i))
             return -1;        
     }
     clientIdOfst = ++i;
-    for (; '/' != *(fStreamName+i); i++){
-        if ('\0' == *(fStreamName+i))
-            return -1;        
+    for (; '/' != *(url+i); i++){
+        if ('\0' == *(url+i))
+            return -2;        
     }
     endOfClientIdOfst = i;
     if (endOfClientIdOfst <= clientIdOfst)
-        return -1;
+        return -3;
+    for (; '/' != *(url+i); i++){
+        if ('\0' == *(url+i))
+            return -4;        
+    }    
+    for (;; i++){
+        if ('\0' == *(url+i))
+            return -5;
+        else if ('.' == *(url + i) &&
+                's' == *(url + ++i) &&
+                'd' == *(url + ++i) &&
+                'p' == *(url + ++i)) {
+            endOfFileNameOfst = ++i;
+            break;
+        }
+    }
+    if (-1 == endOfFileNameOfst)
+        return -6;
     
     //strTopic should like  "/carleapmotorCLOUDE20160727inform/videoinfoAsk";
     //char strTopic[endOfClientIdOfst - clientIdOfst + sizeof(strVideoinfoAsk) + 2] = {0};
@@ -226,7 +248,7 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     char *strTopic = (char*)malloc(lenOfStrTopic);
     memset(strTopic, 0, lenOfStrTopic);
     *strTopic = '/';
-    strncpy(strTopic + 1 , fStreamName + clientIdOfst, endOfClientIdOfst - clientIdOfst);
+    strncpy(strTopic + 1 , url + clientIdOfst, endOfClientIdOfst - clientIdOfst);
     strlcat(strTopic, "/", lenOfStrTopic);
     strlcat(strTopic, strVideoinfoAsk, lenOfStrTopic);
 
@@ -236,14 +258,15 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
     //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
     strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
-    int currPos = strlcat(strPayLoad, "rtsp://120.27.188.84:8888/", maxPayLoadLen);
-        
-    for(i = 0; 0 != *(fStreamName+i) &&  ' ' != *(fStreamName+i); i++)
-    {
-        *(strPayLoad+currPos+i) = *(fStreamName+i);
-    }
-    
+    //strlcat(strPayLoad, "rtsp://120.27.188.84:8888/", maxPayLoadLen);
+
+    strncat(strPayLoad, url, endOfFileNameOfst);   
+//    for(i = 0; 0 != *(fStreamName+i) &&  ' ' != *(fStreamName+i); i++)
+//    {
+//        *(strPayLoad+currPos+i) = *(fStreamName+i);
+//    }    
     //strncat(strPayLoad, fStreamName, maxPayLoadLen);
+    
     strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);        
     strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
     strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
@@ -254,7 +277,7 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     if (0 != rc){
         printf("publishMq to StopPush fail, return code: %d\n", rc);
         free(strTopic);
-        return -1;
+        return -7;
     }
     
     free(strTopic);

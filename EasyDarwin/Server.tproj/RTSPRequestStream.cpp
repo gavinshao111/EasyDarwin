@@ -186,7 +186,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                             if (1 == rc){                               
                                 fprintf(stderr, "Start push MQ sent. %s\n\n", theDate.GetDateBuffer());
                                 qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
-                                sleep(4);
+                                //sleep(4);
                             }                                
                             else if(0 != rc){
                                 fprintf(stderr, "sendStartPushMq fail, return code: %d %s\n\n", rc, theDate.GetDateBuffer());

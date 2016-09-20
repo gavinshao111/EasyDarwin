@@ -409,12 +409,29 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 			(void)theModule->CallDispatch(Easy_CMSFreeStream_Role, &theParams);
 			break;
 		}
+                //fStreamName is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime"
+                // we need splice tobe rtsp://ip:port/$fStreamName.sdp
+                char* strUrl = new char[strlen(fStreamName) + 1 + 50];
+                sprintf(strUrl, "rtsp://120.27.188.84:8888/%s.sdp", fStreamName);
                 
-                int rc = sendStopPushMqWhenThereIsNoClient(fStreamName);
-                if (0 == rc)
+//                StrPtrLen* SocketAIP = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketA())->GetLocalAddrStr();
+//                StrPtrLen* SocketBIP = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketB())->GetLocalAddrStr();
+//                UInt16 SocketAPort = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketA())->GetLocalPort();
+//                UInt16 SocketBPort = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketB())->GetLocalPort();
+//                fprintf(stderr, "A: %s:%u\n\n", SocketAIP->GetAsCString(), SocketAPort);
+//                fprintf(stderr, "A: %s:%u\n\n", SocketBIP->GetAsCString(), SocketBPort);
+                fprintf(stderr, "strUrl: %s\n", strUrl);
+                int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
+                delete[] strUrl;
+                if (0 == rc){
+                    fprintf(stderr, "StopPush MQ sent.\n\n");
                     qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
-                else
-                    qtss_printf("\n\n********************************* sendStopPushMq fial, return code: %d\n\n\n", rc);
+                }
+                    
+                else{
+                    fprintf(stderr, "sendStopPushMq fail, return code: %d\n\n", rc);
+                    qtss_printf("\n\n********************************* sendStopPushMq fail, return code: %d\n\n\n", rc);
+                }
 	}
 }
 
