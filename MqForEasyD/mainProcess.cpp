@@ -31,6 +31,7 @@ const char *strData_Type = "Realtime";
 const char *strVideoType = "SD";
 const char *strOperationBegin = "Begin";
 const char *strOperationStop = "Stop";
+//in code, only map first 9 chars.(LeapMotor)
 const char *strCarUserAgent = "LeapMotor Push v1.0";
 
 const UINT maxPayLoadLen= 2000;
@@ -162,7 +163,7 @@ int sendStartPushMq(const char *req){
     strlcpy(strTopic + 1 + videoTypeOfst - clientIdOfst, strVideoinfoAsk, maxPayLoadLen);
     
     char strPayLoad[maxPayLoadLen] = {0};    
-    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
+    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);
     strlcat(strPayLoad, strServiceType, maxPayLoadLen);
     strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
     
@@ -205,18 +206,6 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     UINT endOfClientIdOfst = -1;
     int i = 0;
     
-//    char strPayLoad[maxPayLoadLen] = {0};    
-//    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
-//    strlcat(strPayLoad, strServiceType, maxPayLoadLen);
-//    strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
-//    //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
-//    strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
-//    //strncat(strPayLoad, req + urlOfst, fileNameEndOfst - urlOfst);
-//    strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);        
-//    strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
-//    strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
-//    strlcat(strPayLoad, "\"}", maxPayLoadLen);
-    char *strPayLoad = "{\"ServiceType\":\"\", \"Data_Type\": \"\", \"URL\":\"\", \"VideoType\":\"\" , \"Operation\":\"\" }";
 
     for (; '$' != *(fStreamName+i); i++){
         if ('\0' == *(fStreamName+i))
@@ -241,6 +230,26 @@ int sendStopPushMqWhenThereIsNoClient(const char *fStreamName){
     strlcat(strTopic, "/", lenOfStrTopic);
     strlcat(strTopic, strVideoinfoAsk, lenOfStrTopic);
 
+    char strPayLoad[maxPayLoadLen] = {0};    
+    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
+    //strlcat(strPayLoad, strServiceType, maxPayLoadLen);
+    strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
+    //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
+    strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
+    int currPos = strlcat(strPayLoad, "rtsp://120.27.188.84:8888/", maxPayLoadLen);
+        
+    for(i = 0; 0 != *(fStreamName+i) &&  ' ' != *(fStreamName+i); i++)
+    {
+        *(strPayLoad+currPos+i) = *(fStreamName+i);
+    }
+    
+    //strncat(strPayLoad, fStreamName, maxPayLoadLen);
+    strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);        
+    strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
+    strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
+    strlcat(strPayLoad, "\"}", maxPayLoadLen);
+//    char *strPayLoad = "{\"ServiceType\":\"\", \"Data_Type\": \"\", \"URL\":\"\", \"VideoType\":\"\" , \"Operation\":\"Stop\" }";    
+    
     int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
     if (0 != rc){
         printf("publishMq to StopPush fail, return code: %d\n", rc);

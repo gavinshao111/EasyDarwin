@@ -176,19 +176,22 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 		if (fPrintRTSP)
 		{
 			DateBuffer theDate;
-			DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
-
+			DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time                        
+                        
                         if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
                             int rc = -1;
-                            //send MQ to car, waiting for car to push media stream.
-                            
+                            //send MQ to car, waiting for car to push media stream.                            
                             rc = sendStartPushMq(fRequest.Ptr);
-                            if (1 == rc){
+                            
+                            if (1 == rc){                               
+                                fprintf(stderr, "Start push MQ sent. %s\n\n", theDate.GetDateBuffer());
                                 qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
                                 sleep(4);
                             }                                
-                            else if(0 != rc)
-                                qtss_printf("\n\n**************************************************************sendStartPushMq fial, return code: %d\n\n\n", rc);
+                            else if(0 != rc){
+                                fprintf(stderr, "sendStartPushMq fail, return code: %d %s\n\n", rc, theDate.GetDateBuffer());
+                                qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+                            }
                         }
 //                        else if ('P' == *(fRequest.Ptr) || 'p' == *(fRequest.Ptr)){
 //                            //int rc = sendStopPushMqForPauseReq(fRequest.Ptr);
@@ -198,8 +201,31 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 //                            else
 //                                qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);                               
 //                        }
-                            
-			qtss_printf("\n\n#C->S:\n#time: ms=%"   _U32BITARG_   " date=%s\n", (UInt32)OS::StartTimeMilli_Int(), theDate.GetDateBuffer());
+                        
+
+                        
+                        DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time                
+
+                        fprintf(stderr, "%.6s ", fRequest.Ptr);
+                        int i = 0;
+                        for (; 0 != fRequest.Ptr; i++){
+                            if (*(fRequest.Ptr+i) == 'U' &&
+                                    *(fRequest.Ptr+ ++i) == 's' &&
+                                    *(fRequest.Ptr+ ++i) == 'e' &&
+                                    *(fRequest.Ptr+ ++i) == 'r' &&
+                                    *(fRequest.Ptr+ ++i) == '-' &&
+                                    *(fRequest.Ptr+ ++i) == 'A' &&
+                                    *(fRequest.Ptr+ ++i) == 'g' &&
+                                    *(fRequest.Ptr+ ++i) == 'e' &&
+                                    *(fRequest.Ptr+ ++i) == 'n' &&
+                                    *(fRequest.Ptr+ ++i) == 't' &&
+                                    *(fRequest.Ptr+ ++i) == ':'){
+                                fprintf(stderr, "%.9s %s\n\n", fRequest.Ptr+i+2, theDate.GetDateBuffer());
+                                break;
+                            }                                
+                        }
+			
+                        qtss_printf("\n\n#C->S:\n#time: ms=%"   _U32BITARG_   " date=%s\n", (UInt32)OS::StartTimeMilli_Int(), theDate.GetDateBuffer());
 
 			if (fSocket != NULL)
 			{
