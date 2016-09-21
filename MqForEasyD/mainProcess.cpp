@@ -101,6 +101,8 @@ int sendStartPushMq(const char *req){
         isRealtime = true;
     else if (0 != memcmp(req+i, "record", 6))
         return 0;
+    else
+        isRealtime = false;
     
     for (; '/' != *(req+i); i++){URLERR}
     if ('$' != *(req+ ++i)) {
@@ -209,14 +211,44 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
     UINT clientIdOfst = -1;
     UINT endOfClientIdOfst = -1;
     UINT endOfFileNameOfst = -1;
+    UINT realOrRecFlagOfst = -1;
+    bool isRealtime = false;
     int i = 0;
     
-
+    if (*(url+i) != 'r' ||
+            *(url+ ++i) != 't' ||
+            *(url+ ++i) != 's' ||
+            *(url+ ++i) != 'p' ||
+            *(url+ ++i) != ':' ||
+            *(url+ ++i) != '/' ||
+            *(url+ ++i) != '/')
+        //PRINTERR("RTSP")
+        return -11;
+        
+    //ipOfst = ++i;
+    i++;
+    
+    for (; '/' != *(url+i); i++){
+        if ('\0' == *(url+i)){
+            printf("URL Format error.\n");
+            return -9;
+        }    
+    }
+    realOrRecFlagOfst = ++i;
+    
+    if (0 == memcmp(url+i, "realtime", 8))
+        isRealtime = true;
+    else if (0 != memcmp(url+i, "record", 6))
+        return -10;
+    else
+        isRealtime = false;
+    
     for (; '$' != *(url+i); i++){
         if ('\0' == *(url+i))
             return -1;        
     }
-    clientIdOfst = ++i;
+    clientIdOfst = ++i;        
+    
     for (; '/' != *(url+i); i++){
         if ('\0' == *(url+i))
             return -2;        
@@ -254,8 +286,14 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
 
     char strPayLoad[maxPayLoadLen] = {0};    
     strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
-    //strlcat(strPayLoad, strServiceType, maxPayLoadLen);
+    strlcat(strPayLoad, strServiceType, maxPayLoadLen);
     strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
+
+    if (isRealtime)
+        strlcat(strPayLoad, "Realtime", maxPayLoadLen);
+    else
+        strlcat(strPayLoad, "Recording", maxPayLoadLen);
+    
     //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
     strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
     //strlcat(strPayLoad, "rtsp://120.27.188.84:8888/", maxPayLoadLen);

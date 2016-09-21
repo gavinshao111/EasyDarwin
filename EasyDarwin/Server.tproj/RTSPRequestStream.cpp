@@ -175,55 +175,8 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 
 		if (fPrintRTSP)
 		{
-			DateBuffer theDate;
-			DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time                        
-                        
-                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
-                            int rc = -1;
-                            //send MQ to car, waiting for car to push media stream.                            
-                            rc = sendStartPushMq(fRequest.Ptr);
-                            
-                            if (1 == rc){                               
-                                fprintf(stderr, "Start push MQ sent. %s\n\n", theDate.GetDateBuffer());
-                                qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
-                                //sleep(4);
-                            }                                
-                            else if(0 != rc){
-                                fprintf(stderr, "sendStartPushMq fail, return code: %d %s\n\n", rc, theDate.GetDateBuffer());
-                                qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
-                            }
-                        }
-//                        else if ('P' == *(fRequest.Ptr) || 'p' == *(fRequest.Ptr)){
-//                            //int rc = sendStopPushMqForPauseReq(fRequest.Ptr);
-//                            int rc = 0;
-//                            if (0 == rc)
-//                                qtss_printf("\n\n**************************************************************StopPush MQ for sent.");
-//                            else
-//                                qtss_printf("\n\n**************************************************************sendStopPushMq fial, return code: %d\n", rc);                               
-//                        }
-                        
-
-                        
-                        DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time                
-
-                        fprintf(stderr, "%.6s ", fRequest.Ptr);
-                        int i = 0;
-                        for (; 0 != fRequest.Ptr; i++){
-                            if (*(fRequest.Ptr+i) == 'U' &&
-                                    *(fRequest.Ptr+ ++i) == 's' &&
-                                    *(fRequest.Ptr+ ++i) == 'e' &&
-                                    *(fRequest.Ptr+ ++i) == 'r' &&
-                                    *(fRequest.Ptr+ ++i) == '-' &&
-                                    *(fRequest.Ptr+ ++i) == 'A' &&
-                                    *(fRequest.Ptr+ ++i) == 'g' &&
-                                    *(fRequest.Ptr+ ++i) == 'e' &&
-                                    *(fRequest.Ptr+ ++i) == 'n' &&
-                                    *(fRequest.Ptr+ ++i) == 't' &&
-                                    *(fRequest.Ptr+ ++i) == ':'){
-                                fprintf(stderr, "%.9s %s\n\n", fRequest.Ptr+i+2, theDate.GetDateBuffer());
-                                break;
-                            }                                
-                        }
+			DateBuffer theDate;                        
+                        DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
 			
                         qtss_printf("\n\n#C->S:\n#time: ms=%"   _U32BITARG_   " date=%s\n", (UInt32)OS::StartTimeMilli_Int(), theDate.GetDateBuffer());
 
@@ -255,6 +208,43 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                                                                      
 			StrPtrLen str(fRequest);
 			str.PrintStrEOL("\n\r\n", "\n");// print the request but stop on \n\r\n and add a \n afterwards.
+			
+                        int i = 0;
+                        for (; 0 != fRequest.Ptr; i++){
+                            if (*(fRequest.Ptr+i) == 'U' &&
+                                    *(fRequest.Ptr+ ++i) == 's' &&
+                                    *(fRequest.Ptr+ ++i) == 'e' &&
+                                    *(fRequest.Ptr+ ++i) == 'r' &&
+                                    *(fRequest.Ptr+ ++i) == '-' &&
+                                    *(fRequest.Ptr+ ++i) == 'A' &&
+                                    *(fRequest.Ptr+ ++i) == 'g' &&
+                                    *(fRequest.Ptr+ ++i) == 'e' &&
+                                    *(fRequest.Ptr+ ++i) == 'n' &&
+                                    *(fRequest.Ptr+ ++i) == 't' &&
+                                    *(fRequest.Ptr+ ++i) == ':'){
+                                DateTranslator::UpdateDateBuffer(&theDate, 0);
+                                fprintf(stderr, "TID: %lu %.6s %.9s %s\n\n", OSThread::GetCurrentThreadID(), fRequest.Ptr, fRequest.Ptr+i+2, theDate.GetDateBuffer());
+                                break;
+                            }                                
+                        }
+                        
+                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
+                            int rc = -1;
+                            //send MQ to car, waiting for car to push media stream.
+                            DateTranslator::UpdateDateBuffer(&theDate, 0);
+                            fprintf(stderr, "TID: %lu OPTION arrvied. %s\n\n", OSThread::GetCurrentThreadID(), theDate.GetDateBuffer());
+                            rc = sendStartPushMq(fRequest.Ptr);
+                            DateTranslator::UpdateDateBuffer(&theDate, 0);
+                            if (1 == rc){
+                                fprintf(stderr, "TID: %lu Start push MQ sent. %s\n\n", OSThread::GetCurrentThreadID(), theDate.GetDateBuffer());
+                                qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
+                                sleep(8);
+                            }                                
+                            else if(0 != rc){
+                                fprintf(stderr, "TID: %lu sendStartPushMq fail, return code: %d %s\n\n", OSThread::GetCurrentThreadID(), rc, theDate.GetDateBuffer());
+                                qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+                            }
+                        }
 		}
 
 		//use a StringParser object to search for a double EOL, which signifies the end of
