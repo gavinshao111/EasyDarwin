@@ -420,16 +420,16 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 //                UInt16 SocketBPort = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketB())->GetLocalPort();
 //                fprintf(stderr, "A: %s:%u\n\n", SocketAIP->GetAsCString(), SocketAPort);
 //                fprintf(stderr, "A: %s:%u\n\n", SocketBIP->GetAsCString(), SocketBPort);
-                fprintf(stderr, "strUrl: %s\n", strUrl);
+                //fprintf(stderr, "strUrl: %s\n", strUrl);
                 int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
                 delete[] strUrl;
                 if (0 == rc){
-                    fprintf(stderr, "StopPush MQ sent.\n\n");
+                    fprintf(stderr, "******** No APP, StopPush MQ sent.\n\n");
                     qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
                 }
                     
                 else{
-                    fprintf(stderr, "sendStopPushMq fail, return code: %d\n\n", rc);
+                    fprintf(stderr, "******** No APP, sendStopPushMq fail, return code: %d\n\n", rc);
                     qtss_printf("\n\n********************************* sendStopPushMq fail, return code: %d\n\n\n", rc);
                 }
 	}

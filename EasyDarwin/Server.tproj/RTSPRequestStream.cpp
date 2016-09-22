@@ -37,7 +37,10 @@
 #include "OSMemory.h"
 #include "base64.h"
 #include "OS.h"
+
 #include "mainProcess.h"
+#include "GetSession.h"
+const char *strCarUserAgent = "LeapMotor Push v1.0";
 
 RTSPRequestStream::RTSPRequestStream(TCPSocket* sock)
 	: fSocket(sock),
@@ -210,6 +213,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 			str.PrintStrEOL("\n\r\n", "\n");// print the request but stop on \n\r\n and add a \n afterwards.
 			
                         int i = 0;
+                        bool IsFromCar = false;
                         for (; 0 != fRequest.Ptr; i++){
                             if (*(fRequest.Ptr+i) == 'U' &&
                                     *(fRequest.Ptr+ ++i) == 's' &&
@@ -223,27 +227,47 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                                     *(fRequest.Ptr+ ++i) == 't' &&
                                     *(fRequest.Ptr+ ++i) == ':'){
                                 DateTranslator::UpdateDateBuffer(&theDate, 0);
-                                fprintf(stderr, "TID: %lu %.6s %.9s %s\n\n", OSThread::GetCurrentThreadID(), fRequest.Ptr, fRequest.Ptr+i+2, theDate.GetDateBuffer());
+                                fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+i+2, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                if (0 == memcmp(req+i, strCarUserAgent, 9))
+                                    IsFromCar = true;
                                 break;
                             }                                
                         }
                         
-                        if ('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)){
+                        if (('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)) && !IsFromCar ){
                             int rc = -1;
                             //send MQ to car, waiting for car to push media stream.
                             DateTranslator::UpdateDateBuffer(&theDate, 0);
-                            fprintf(stderr, "TID: %lu OPTION arrvied. %s\n\n", OSThread::GetCurrentThreadID(), theDate.GetDateBuffer());
-                            rc = sendStartPushMq(fRequest.Ptr);
-                            DateTranslator::UpdateDateBuffer(&theDate, 0);
-                            if (1 == rc){
-                                fprintf(stderr, "TID: %lu Start push MQ sent. %s\n\n", OSThread::GetCurrentThreadID(), theDate.GetDateBuffer());
-                                qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
-                                sleep(8);
-                            }                                
-                            else if(0 != rc){
-                                fprintf(stderr, "TID: %lu sendStartPushMq fail, return code: %d %s\n\n", OSThread::GetCurrentThreadID(), rc, theDate.GetDateBuffer());
-                                qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+                            //fprintf(stderr, "******** OPTION arrvied. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+
+
+
+
+                            
+// To do: cant get correct result from IsUrlExistingInSessionMap();!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// since we have judge whether the req is from Car or not, we needn't filter it in mainProcess.cpp
+
+
+
+
+
+
+                            if(!IsUrlExistingInSessionMap(&str)){
+                                fprintf(stderr, "******** Url is not ExistingInSessionMap\n\n");
+                                rc = sendStartPushMq(fRequest.Ptr);
+                                DateTranslator::UpdateDateBuffer(&theDate, 0);
+                                if (1 == rc){
+                                    fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                    qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
+                                    sleep(4);
+                                }                                
+                                else if(0 != rc){
+                                    fprintf(stderr, "******** sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                    qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+                                }
                             }
+                            else
+                                fprintf(stderr, "******** Url is ExistingInSessionMap, do nothing.\n\n");
                         }
 		}
 
