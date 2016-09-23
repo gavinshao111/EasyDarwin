@@ -18,6 +18,7 @@ extern "C"{
 
 #define MQTTCLIENT_PERSISTENCE_NONE 1
 #define URLERR if ('\0' == *(req+i+3)){printf("URL Format error.\n");return 9;}
+#define AURLERR if ('\0' == *(areq+i+3)){printf("URL Format error.\n");return 9;}
 #define PRINTERR(ERRTYPE) printf("%s format error:\n%s\n", (ERRTYPE), req);return 10;
 //MQ
 const char *strClientIdForMQ = "EasyDarwin";
@@ -35,6 +36,125 @@ const char *strOperationStop = "Stop";
 const char *strCarUserAgent = "LeapMotor Push v1.0";
 
 const UINT maxPayLoadLen= 2000;
+
+
+
+/*
+ * return:
+ * 0: ok.
+ * negative: error.
+ * 
+   
+ */
+int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
+{
+    if (NULL == areq || NULL == aVideoReqInfo)
+        return -1;
+    
+    aVideoReqInfo->req = areq;
+    
+    UINT i = 0;
+
+    bool isRealtime = false;
+    
+    for(;' ' == *(areq+i); i++)
+        if('\0' == *(areq+i))
+            return -1;    
+    if ('O' == *(areq+i) || 'o' == *(areq+i))
+        aVideoReqInfo->ignore = true;
+    
+    for(;' ' != *(areq+i); i++)
+        if('\0' == *(areq+i))
+            return -1;
+    
+    
+    aVideoReqInfo->urlOfst = ++i;
+    if (*(areq+i) != 'r' ||
+            *(areq+ ++i) != 't' ||
+            *(areq+ ++i) != 's' ||
+            *(areq+ ++i) != 'p' ||
+            *(areq+ ++i) != ':' ||
+            *(areq+ ++i) != '/' ||
+            *(areq+ ++i) != '/')
+        //PRINTERR("RTSP")
+        return -2;
+        
+    aVideoReqInfo->ipOfst = ++i;
+    
+    for (; ':' != *(areq+i); i++){AURLERR}
+    aVideoReqInfo->portOfst = ++i;
+    
+    for (;; i++) {
+        if ('\0' == *(areq+i)){
+            return -4;
+        }
+        if (' ' == *(areq+i)) {
+            aVideoReqInfo->ignore = true;
+            goto getUserAgentAndRet;            
+        }
+        else if ('/' == *(areq+i)) {
+            if (' ' == *(areq+ ++i)){
+                aVideoReqInfo->ignore = true;
+                goto getUserAgentAndRet;
+            }
+            break;
+        }                        
+    }
+    
+    aVideoReqInfo->realOrRecFlagOfst = i;    
+    
+    for (; '/' != *(areq+i); i++){AURLERR}
+    if ('$' != *(areq+ ++i)) {
+        //PRINTERR("ClientId")
+        return -12;
+    }        
+    aVideoReqInfo->clientIdOfst = ++i;
+    
+    for (; '/' != *(areq+i); i++){AURLERR}
+    if ('0' != *(areq+ ++i) && '1' != *(areq+i)) {
+        //PRINTERR("VideoType")
+        return -13;
+    }
+    aVideoReqInfo->videoTypeOfst = i;
+    
+    if ('/' != *(areq+ ++i)) {
+        //PRINTERR("FileName")
+        return -14;
+    }
+
+    aVideoReqInfo->fileNameOfst = ++i;
+
+    for (; '\0' != *(areq+i) && ' ' != *(areq+i) && '/' != *(areq+i); i++){AURLERR}
+    aVideoReqInfo->fileNameEndOfst = i++;
+
+
+getUserAgentAndRet:
+    for(;;i++){
+        if(0 == *(areq+i)){
+            return -15;
+        }
+        else if (*(areq+i) != 'U' ||
+            *(areq+ ++i) != 's' ||
+            *(areq+ ++i) != 'e' ||
+            *(areq+ ++i) != 'r' ||
+            *(areq+ ++i) != '-' ||
+            *(areq+ ++i) != 'A' ||
+            *(areq+ ++i) != 'g' ||
+            *(areq+ ++i) != 'e' ||
+            *(areq+ ++i) != 'n' ||
+            *(areq+ ++i) != 't' ||
+            *(areq+ ++i) != ':')
+            continue;
+        else    //get User-Agent:
+            break;        
+    }
+    for (i++ ; ' ' == *(areq+i); i++);
+    aVideoReqInfo->userAgentOfst = i;
+    if (false == aVideoReqInfo->ignore && memcmp(areq+i, strCarUserAgent, 9) )
+        aVideoReqInfo->ignore = true;
+    
+    return 0;
+}
 
 /*
  * 客户端发过来的URL例子:

@@ -214,60 +214,43 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 			
                         int i = 0;
                         bool IsFromCar = false;
-                        for (; 0 != fRequest.Ptr; i++){
-                            if (*(fRequest.Ptr+i) == 'U' &&
-                                    *(fRequest.Ptr+ ++i) == 's' &&
-                                    *(fRequest.Ptr+ ++i) == 'e' &&
-                                    *(fRequest.Ptr+ ++i) == 'r' &&
-                                    *(fRequest.Ptr+ ++i) == '-' &&
-                                    *(fRequest.Ptr+ ++i) == 'A' &&
-                                    *(fRequest.Ptr+ ++i) == 'g' &&
-                                    *(fRequest.Ptr+ ++i) == 'e' &&
-                                    *(fRequest.Ptr+ ++i) == 'n' &&
-                                    *(fRequest.Ptr+ ++i) == 't' &&
-                                    *(fRequest.Ptr+ ++i) == ':'){
-                                DateTranslator::UpdateDateBuffer(&theDate, 0);
-                                fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+i+2, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                if (0 == memcmp(fRequest.Ptr+i, strCarUserAgent, 9))
-                                    IsFromCar = true;
-                                break;
-                            }                                
-                        }
+                        videoReqInfoType videoReqInfo={0};
                         
-                        if (('O' == *(fRequest.Ptr) || 'o' == *(fRequest.Ptr)) && !IsFromCar ){
-                            int rc = -1;
-                            //send MQ to car, waiting for car to push media stream.
-                            DateTranslator::UpdateDateBuffer(&theDate, 0);
-                            //fprintf(stderr, "******** OPTION arrvied. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                        int rc = getUrlAndUserAgent(fRequest.Ptr, &videoReqInfo);
+                        if (0 != rc)
+                            fprintf(stderr, "[WARN] getUrlAndUserAgent error, return code: %d\n\n", rc);
+                        else {                        
+                            fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+videoReqInfo.UserAgentOfst, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                            if (!videoReqInfo.ignore) {
 
-
-
-
-                            
-// To do: cant get correct result from IsUrlExistingInSessionMap();!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// since we have judge whether the req is from Car or not, we needn't filter it in mainProcess.cpp
-
-
-
-
-
-
-                            if(!IsUrlExistingInSessionMap(&str)){
-                                fprintf(stderr, "******** Url is not ExistingInSessionMap\n\n");
-                                rc = sendStartPushMq(fRequest.Ptr);
-                                DateTranslator::UpdateDateBuffer(&theDate, 0);
-                                if (1 == rc){
-                                    fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                    qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
-                                    sleep(4);
-                                }                                
-                                else if(0 != rc){
-                                    fprintf(stderr, "******** sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                    qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
-                                }
+                                    // To do: since we have judge whether the req is from Car or not, we needn't filter it in mainProcess.cpp
+                                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp"
+                                    StrPtrLen inPath;
+                                    inPath.Len = 9 + videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst;
+                                    inPath.Ptr = NEW char[inPath.Len + 1];
+                                    
+                                    //memset(inPath.Ptr)...
+                                    
+                                    if(!IsUrlExistingInSessionMap(&inPath)){
+                                        fprintf(stderr, "******** Url is not ExistingInSessionMap\n\n");
+                                        rc = 1;//sendStartPushMq(fRequest.Ptr);
+                                        DateTranslator::UpdateDateBuffer(&theDate, 0);
+                                        if (1 == rc){
+                                            fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                            qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
+                                            sleep(4);
+                                        }                                
+                                        else if(0 != rc){
+                                            fprintf(stderr, "******** sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                            qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+                                        }
+                                    }
+                                    else
+                                        fprintf(stderr, "******** Url is ExistingInSessionMap, do nothing.\n\n");
+                                    
+                                    inPath.Delete();
+                                
                             }
-                            else
-                                fprintf(stderr, "******** Url is ExistingInSessionMap, do nothing.\n\n");
                         }
 		}
 
@@ -434,3 +417,4 @@ QTSS_Error RTSPRequestStream::DecodeIncomingData(char* inSrcData, UInt32 inSrcDa
 
 	return QTSS_NoErr;
 }
+
