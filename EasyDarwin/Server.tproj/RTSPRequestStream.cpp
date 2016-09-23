@@ -220,33 +220,35 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                         if (0 != rc)
                             fprintf(stderr, "[WARN] getUrlAndUserAgent error, return code: %d\n\n", rc);
                         else {                        
-                            fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+videoReqInfo.UserAgentOfst, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                            fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+videoReqInfo.userAgentOfst, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
                             if (!videoReqInfo.ignore) {
 
-                                    // To do: since we have judge whether the req is from Car or not, we needn't filter it in mainProcess.cpp
-                                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp"
+                                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp" Need test.
                                     StrPtrLen inPath;
                                     inPath.Len = 9 + videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst;
                                     inPath.Ptr = NEW char[inPath.Len + 1];
                                     
-                                    //memset(inPath.Ptr)...
+                                    memset(inPath.Ptr, 0, inPath.Len + 1);
                                     
+                                    memcpy(inPath.Ptr, "./Movies/", 9);
+                                    memcpy(inPath.Ptr+9, videoReqInfo.req+videoReqInfo.realOrRecFlagOfst, videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst);
+                                    fprintf(stderr, "[DEBUG] inPath: %s\n\n", inPath.Ptr);
                                     if(!IsUrlExistingInSessionMap(&inPath)){
-                                        fprintf(stderr, "******** Url is not ExistingInSessionMap\n\n");
-                                        rc = 1;//sendStartPushMq(fRequest.Ptr);
+                                        fprintf(stderr, "[DEBUG] Url is not ExistingInSessionMap\n\n");
+                                        rc = sendStartPushMq(&videoReqInfo);
                                         DateTranslator::UpdateDateBuffer(&theDate, 0);
-                                        if (1 == rc){
+                                        if (0 == rc){
                                             fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
                                             qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
                                             sleep(4);
                                         }                                
-                                        else if(0 != rc){
-                                            fprintf(stderr, "******** sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+                                        else {
+                                            fprintf(stderr, "[WARN] sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
                                             qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
                                         }
                                     }
                                     else
-                                        fprintf(stderr, "******** Url is ExistingInSessionMap, do nothing.\n\n");
+                                        fprintf(stderr, "[DEBUG] Url is ExistingInSessionMap, do nothing.\n\n");
                                     
                                     inPath.Delete();
                                 

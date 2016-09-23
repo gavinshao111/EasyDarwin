@@ -3,7 +3,7 @@
 
 typedef struct sVideoReqInfoType{
     char *req;
-    int urlOfst;;
+    int urlOfst;
     int ipOfst;
     int portOfst;
     int realOrRecFlagOfst;
@@ -16,11 +16,12 @@ typedef struct sVideoReqInfoType{
     // only deal app play req, like OPTION rtsp://10.34.16.180:8888/realtime/$1234/1/realtime.sdp
 }videoReqInfoType;
 
-int sendStartPushMq(const char *req);
+int sendStartPushMq(videoReqInfoType* aVideoReqInfo);
 int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
 int sendStopPushMqForPauseReq(const char *req);
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad);
 int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo);
+//int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin);
 
 #endif /* MAINPROCESS_H */
 

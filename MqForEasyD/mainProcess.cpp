@@ -36,7 +36,7 @@ const char *strOperationStop = "Stop";
 const char *strCarUserAgent = "LeapMotor Push v1.0";
 
 const UINT maxPayLoadLen= 2000;
-
+const UINT maxTopicLen= 500;
 
 
 /*
@@ -53,15 +53,14 @@ int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
     
     aVideoReqInfo->req = areq;
     
-    UINT i = 0;
-
-    bool isRealtime = false;
-    
+    UINT i = 0;    
     for(;' ' == *(areq+i); i++)
         if('\0' == *(areq+i))
             return -1;    
-    if ('O' == *(areq+i) || 'o' == *(areq+i))
+    if ('O' != *(areq+i) && 'o' != *(areq+i)){
         aVideoReqInfo->ignore = true;
+        goto getUserAgentAndRet;        
+    }
     
     for(;' ' != *(areq+i); i++)
         if('\0' == *(areq+i))
@@ -90,7 +89,7 @@ int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
         }
         if (' ' == *(areq+i)) {
             aVideoReqInfo->ignore = true;
-            goto getUserAgentAndRet;            
+            goto getUserAgentAndRet;           
         }
         else if ('/' == *(areq+i)) {
             if (' ' == *(areq+ ++i)){
@@ -125,7 +124,7 @@ int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
     aVideoReqInfo->fileNameOfst = ++i;
 
     for (; '\0' != *(areq+i) && ' ' != *(areq+i) && '/' != *(areq+i); i++){AURLERR}
-    aVideoReqInfo->fileNameEndOfst = i++;
+    aVideoReqInfo->fileNameEndOfst = i;
 
 
 getUserAgentAndRet:
@@ -150,7 +149,7 @@ getUserAgentAndRet:
     }
     for (i++ ; ' ' == *(areq+i); i++);
     aVideoReqInfo->userAgentOfst = i;
-    if (false == aVideoReqInfo->ignore && memcmp(areq+i, strCarUserAgent, 9) )
+    if (false == aVideoReqInfo->ignore && 0 == memcmp(areq+i, strCarUserAgent, 9) )
         aVideoReqInfo->ignore = true;
     
     return 0;
@@ -175,147 +174,66 @@ Accept: application/sdp\r\n
 \r\n
  *  */
 
-
-int sendStartPushMq(const char *req){        
-    if (NULL == req)
-        return -1;        
-    
-    //qtss_printf("req: %s\n\n\n", req);
-    UINT i = 0;
-    UINT urlOfst = -1;
-    UINT ipOfst = -1;
-    UINT portOfst = -1;
-    UINT realOrRecFlagOfst = -1;
-    UINT clientIdOfst = -1;
-    UINT videoTypeOfst = -1;
-    UINT fileNameOfst = -1;
-    UINT fileNameEndOfst = -1;
-    bool isRealtime = false;
-    
-    i += sizeof("OPTIONS") - 1;
-    for (; ' ' == *(req+i); i++);
-    
-    urlOfst = i;
-    if (*(req+i) != 'r' ||
-            *(req+ ++i) != 't' ||
-            *(req+ ++i) != 's' ||
-            *(req+ ++i) != 'p' ||
-            *(req+ ++i) != ':' ||
-            *(req+ ++i) != '/' ||
-            *(req+ ++i) != '/')
-        //PRINTERR("RTSP")
-        return 11;
-        
-    ipOfst = ++i;
-    
-    for (; ':' != *(req+i); i++){URLERR}
-    portOfst = ++i;
-    
-    for (; '/' != *(req+i); i++){URLERR}
-    realOrRecFlagOfst = ++i;
-    
-
-    if (' ' == *(req+i))
-        return 0;
-    else if (0 == memcmp(req+i, "realtime", 8))
-        isRealtime = true;
-    else if (0 != memcmp(req+i, "record", 6))
-        return 0;
-    else
-        isRealtime = false;
-    
-    for (; '/' != *(req+i); i++){URLERR}
-    if ('$' != *(req+ ++i)) {
-        //PRINTERR("ClientId")
-        return 12;
-    }        
-    clientIdOfst = ++i;
-    
-    for (; '/' != *(req+i); i++){URLERR}
-    if ('0' != *(req+ ++i) && '1' != *(req+i)) {
-        //PRINTERR("VideoType")
-        return 13;
-    }
-    videoTypeOfst = i;
-    
-    if ('/' != *(req+ ++i)) {
-        //PRINTERR("FileName")
-        return 14;
-    }
-
-    fileNameOfst = ++i;
-
-    for (; '\0' != *(req+i) && ' ' != *(req+i) && '/' != *(req+i); i++){URLERR}
-    fileNameEndOfst = i++;
-
-    for(;;i++){
-        if(0 == *(req+i)){
-            return 15;
-        }
-        else if (*(req+i) != 'U' ||
-            *(req+ ++i) != 's' ||
-            *(req+ ++i) != 'e' ||
-            *(req+ ++i) != 'r' ||
-            *(req+ ++i) != '-' ||
-            *(req+ ++i) != 'A' ||
-            *(req+ ++i) != 'g' ||
-            *(req+ ++i) != 'e' ||
-            *(req+ ++i) != 'n' ||
-            *(req+ ++i) != 't' ||
-            *(req+ ++i) != ':')
-            continue;
-        else    //get User-Agent:
-            break;        
-    }
-    for (i++ ; ' ' == *(req+i); i++);
-    
-    // we only send MQ from client.
-    if (0 == memcmp(req+i, strCarUserAgent, 9))
-        return 0;
-    
+static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin)
+{
+    if (NULL == aVideoReqInfo || NULL == strTopic || NULL == strPayLoad)
+        return -1;
     
     //char strTopic[1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)] = {0};
     //char* strTopic = (char *)malloc(sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
     //memset(strTopic, 0, sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
-    char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
-    memset(strTopic, 0, 1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    //char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    //memset(strTopic, 0, 1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
             
     *strTopic = '/';
-    memcpy(strTopic + 1, req+clientIdOfst, videoTypeOfst - clientIdOfst);
-    strlcpy(strTopic + 1 + videoTypeOfst - clientIdOfst, strVideoinfoAsk, maxPayLoadLen);
-    
-    char strPayLoad[maxPayLoadLen] = {0};    
+    memcpy(strTopic + 1, aVideoReqInfo->req+aVideoReqInfo->clientIdOfst, aVideoReqInfo->videoTypeOfst - aVideoReqInfo->clientIdOfst);
+    strlcpy(strTopic + 1 + aVideoReqInfo->videoTypeOfst - aVideoReqInfo->clientIdOfst, strVideoinfoAsk, maxPayLoadLen);    
+        
     strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);
     strlcat(strPayLoad, strServiceType, maxPayLoadLen);
     strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
     
-    if (isRealtime)
+    if (0 == memcmp(aVideoReqInfo->req+aVideoReqInfo->realOrRecFlagOfst, "realtime", 8))
         strlcat(strPayLoad, "Realtime", maxPayLoadLen);
     else
         strlcat(strPayLoad, "Recording", maxPayLoadLen);
     
     strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
-    strncat(strPayLoad, req + urlOfst, fileNameEndOfst - urlOfst);
+    strncat(strPayLoad, aVideoReqInfo->req + aVideoReqInfo->urlOfst, aVideoReqInfo->fileNameEndOfst - aVideoReqInfo->urlOfst);
     strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);
     
-    if ('0' == *(req + videoTypeOfst))
+    if ('0' == *(aVideoReqInfo->req + aVideoReqInfo->videoTypeOfst))
         strlcat(strPayLoad, "HD", maxPayLoadLen);
     else
         strlcat(strPayLoad, "SD", maxPayLoadLen);
     
     strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
-    strlcat(strPayLoad, strOperationBegin, maxPayLoadLen);
+    if (isBegin)
+        strlcat(strPayLoad, strOperationBegin, maxPayLoadLen);
+    else
+        strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
     strlcat(strPayLoad, "\"}", maxPayLoadLen);
+    
+    return 0;
+}
 
+int sendStartPushMq(videoReqInfoType* aVideoReqInfo){        
+    if (NULL == aVideoReqInfo)
+        return -1;        
+    
+    //char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    char strTopic[maxTopicLen] = {0};
+    char strPayLoad[maxPayLoadLen] = {0};
+    if (0 != generateTopicAndPayLoad(aVideoReqInfo, strTopic, strPayLoad, true))
+        return -2;
+    
     int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
     if (0 != rc){
         printf("publishMq to StartPush fail, return code: %d\n", rc);
-        free(strTopic);
-        return -1;
+        return -3;
     }
     
-    free(strTopic);
-    return 1;
+    return 0;
     
 }
 
