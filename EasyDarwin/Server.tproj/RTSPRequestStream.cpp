@@ -228,7 +228,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                                     *(fRequest.Ptr+ ++i) == ':'){
                                 DateTranslator::UpdateDateBuffer(&theDate, 0);
                                 fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+i+2, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                if (0 == memcmp(req+i, strCarUserAgent, 9))
+                                if (0 == memcmp(fRequest.Ptr+i, strCarUserAgent, 9))
                                     IsFromCar = true;
                                 break;
                             }                                
