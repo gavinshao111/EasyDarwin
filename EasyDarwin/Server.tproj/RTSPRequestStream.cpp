@@ -217,41 +217,48 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                         videoReqInfoType videoReqInfo={0};
                         
                         int rc = getUrlAndUserAgent(fRequest.Ptr, &videoReqInfo);
+						DateTranslator::UpdateDateBuffer(&theDate, 0);
                         if (0 != rc)
                             fprintf(stderr, "[WARN] getUrlAndUserAgent error, return code: %d\n\n", rc);
                         else {                        
                             fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+videoReqInfo.userAgentOfst, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
                             if (!videoReqInfo.ignore) {
 
-                                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp" Need test.
-                                    StrPtrLen inPath;
-                                    inPath.Len = 9 + videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst;
-                                    inPath.Ptr = NEW char[inPath.Len + 1];
-                                    
-                                    memset(inPath.Ptr, 0, inPath.Len + 1);
-                                    
-                                    memcpy(inPath.Ptr, "./Movies/", 9);
-                                    memcpy(inPath.Ptr+9, videoReqInfo.req+videoReqInfo.realOrRecFlagOfst, videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst);
-                                    fprintf(stderr, "[DEBUG] inPath: %s\n\n", inPath.Ptr);
-                                    if(!IsUrlExistingInSessionMap(&inPath)){
-                                        fprintf(stderr, "[DEBUG] Url is not ExistingInSessionMap\n\n");
-                                        rc = sendStartPushMq(&videoReqInfo);
-                                        DateTranslator::UpdateDateBuffer(&theDate, 0);
-                                        if (0 == rc){
-                                            fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                            qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
-                                            sleep(4);
-                                        }                                
-                                        else {
-                                            fprintf(stderr, "[WARN] sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
-                                            qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
-                                        }
-                                    }
-                                    else
-                                        fprintf(stderr, "[DEBUG] Url is ExistingInSessionMap, do nothing.\n\n");
-                                    
-                                    inPath.Delete();
-                                
+									rc = sendStartPushMq(&videoReqInfo);
+									/*
+									 case1: APP1 & me has established to play video, then APP2 sending a OPTION to me to play video, then i send StartMQ to car, and car will ignore, because it is already pushing.
+									 case2: APP1 is vlc, which send play req(OPTION), then established, then disconnect and reconnect(send OPTION to me).
+									 for this case, vlc first send a option, then I send StartMQ to car, then car is pushing, then it is recorded in SessionMap, 
+									 then vlc send a teardown, then i send StopMQ to car in ReflectorSession.cpp, then APP1 send OPTION to me in 1s after teardown,
+									 but at this time, the car didn't stop push(it will stop if it recive StopMQ && hasn't recive StartMQ after 3s.),
+									 so Url is ExistingInSessionMap, then I need send a StartMQ to car, then the car will continue to push.
+									*/
+
+									if (0 == rc){
+										fprintf(stderr, "******** Start push MQ sent. %s TID: %lu\n\n", theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+										qtss_printf("\n\n********************************* %s Start push MQ sent.\n\n\n", theDate.GetDateBuffer());
+										
+										// we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp".
+										StrPtrLen inPath;
+										inPath.Len = 9 + videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst;
+										inPath.Ptr = NEW char[inPath.Len + 1];										
+										memset(inPath.Ptr, 0, inPath.Len + 1);
+										memcpy(inPath.Ptr, "./Movies/", 9);
+										memcpy(inPath.Ptr+9, videoReqInfo.req+videoReqInfo.realOrRecFlagOfst, videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst);
+
+										if(!IsUrlExistingInSessionMap(&inPath)){
+											fprintf(stderr, "[DEBUG] %s is not ExistingInSessionMap. Waiting for car to push.\n\n", inPath.Ptr);
+											sleep(4);
+										}
+										else
+											fprintf(stderr, "[DEBUG] %s is ExistingInSessionMap.\n\n", inPath.Ptr);
+										inPath.Delete();                                
+									}                                
+									else {
+										fprintf(stderr, "[WARN] sendStartPushMq fail, return code: %d %s TID: %lu\n\n", rc, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
+										qtss_printf("\n\n********************************* %s sendStartPushMq fail, return code: %d\n\n\n", theDate.GetDateBuffer(), rc);                            
+									}
+
                             }
                         }
 		}

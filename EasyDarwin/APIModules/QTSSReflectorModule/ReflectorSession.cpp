@@ -398,6 +398,7 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 	//移除客户端之后判断fNumOutputs是否为0,add
 	if (fNumOutputs == 0)
 	{
+
 		//调用角色，停止推流
 		QTSS_RoleParams theParams;
 		theParams.easyFreeStreamParams.inStreamName = fStreamName;
@@ -423,15 +424,17 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
                 //fprintf(stderr, "strUrl: %s\n", strUrl);
                 int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
                 delete[] strUrl;
+            DateBuffer theDate;
+			DateTranslator::UpdateDateBuffer(&theDate, 0);				
                 if (0 == rc){
-                    fprintf(stderr, "******** No APP, StopPush MQ sent.\n\n");
-                    qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
+                    fprintf(stderr, "******** No APP, StopPush MQ sent. %s\n\n", theDate.GetDateBuffer());
+                    qtss_printf("\n\n********************************* StopPush MQ sent. %s\n\n\n", theDate.GetDateBuffer());
                 }
                     
                 else{
-                    fprintf(stderr, "******** No APP, sendStopPushMq fail, return code: %d\n\n", rc);
-                    qtss_printf("\n\n********************************* sendStopPushMq fail, return code: %d\n\n\n", rc);
-                }
+                    fprintf(stderr, "******** No APP, sendStopPushMq fail, return code: %d %s\n\n", rc, theDate.GetDateBuffer());
+                    qtss_printf("\n\n********************************* sendStopPushMq fail, return code: %d %s\n\n\n", rc, theDate.GetDateBuffer());
+                }			
 	}
 }
 

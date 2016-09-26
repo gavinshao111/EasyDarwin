@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
+#include <sys/time.h>
 using namespace std;
 extern "C"{
     #include "MQTTAsync.h"
@@ -129,8 +130,10 @@ int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
 
 getUserAgentAndRet:
     for(;;i++){
-        if(0 == *(areq+i)){
-            return -15;
+        if(0 == *(areq+i)){	//some req doesn't contain userAgent, userAgentOfst point to end.
+			aVideoReqInfo->ignore = true;
+			aVideoReqInfo->userAgentOfst = i;
+            return 0;
         }
         else if (*(areq+i) != 'U' ||
             *(areq+ ++i) != 's' ||
@@ -178,13 +181,13 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
 {
     if (NULL == aVideoReqInfo || NULL == strTopic || NULL == strPayLoad)
         return -1;
-    
+	
     //char strTopic[1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)] = {0};
     //char* strTopic = (char *)malloc(sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
     //memset(strTopic, 0, sizeof(char)*(1 + videoTypeOfst - clientIdOfst + sizeof(strVideoinfoAsk)));
     //char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
     //memset(strTopic, 0, 1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
-            
+         
     *strTopic = '/';
     memcpy(strTopic + 1, aVideoReqInfo->req+aVideoReqInfo->clientIdOfst, aVideoReqInfo->videoTypeOfst - aVideoReqInfo->clientIdOfst);
     strlcpy(strTopic + 1 + aVideoReqInfo->videoTypeOfst - aVideoReqInfo->clientIdOfst, strVideoinfoAsk, maxPayLoadLen);    
@@ -212,8 +215,16 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
         strlcat(strPayLoad, strOperationBegin, maxPayLoadLen);
     else
         strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
-    strlcat(strPayLoad, "\"}", maxPayLoadLen);
+
+    strlcat(strPayLoad, "\",\"Datetime\":\"", maxPayLoadLen);
+	struct timeval s_time;
+	gettimeofday(&s_time, NULL);
+	char strTime[20] ={0};
+	sprintf(strTime, "%ld", ((long)s_time.tv_sec)*1000+(long)s_time.tv_usec/1000);
+	strlcat(strPayLoad, strTime, maxPayLoadLen);
     
+	strlcat(strPayLoad, "\"}", maxPayLoadLen);
+	
     return 0;
 }
 
@@ -346,7 +357,16 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
     strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);        
     strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
     strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
-    strlcat(strPayLoad, "\"}", maxPayLoadLen);
+
+    strlcat(strPayLoad, "\",\"Datetime\":\"", maxPayLoadLen);
+	struct timeval s_time;
+	gettimeofday(&s_time, NULL);
+	char strTime[20] ={0};
+	sprintf(strTime, "%ld", ((long)s_time.tv_sec)*1000+(long)s_time.tv_usec/1000);
+	strlcat(strPayLoad, strTime, maxPayLoadLen);
+    
+	strlcat(strPayLoad, "\"}", maxPayLoadLen);
+	
 //    char *strPayLoad = "{\"ServiceType\":\"\", \"Data_Type\": \"\", \"URL\":\"\", \"VideoType\":\"\" , \"Operation\":\"Stop\" }";    
     
     int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);

@@ -2340,7 +2340,5 @@ Bool16 IsAbsolutePath(StrPtrLen *inPathPtr)
 }
 bool IsUrlExistingInSessionMap(StrPtrLen *url)
 {
-    fprintf(stderr, "*********** IsUrlExistingInSessionMap\n\n");
-    OSMutexLocker locker(sSessionMap->GetMutex());
     return (NULL != sSessionMap->Resolve(url));
 }
