@@ -1436,11 +1436,13 @@ ReflectorSession* FindOrCreateSession(StrPtrLen* inPath, QTSS_StandardRTSP_Param
 			return NULL;
 		}
 
-		//qtss_printf("Created reflector session = %"   _U32BITARG_   " theInfo=%"   _U32BITARG_   " \n", (UInt32) theSession,(UInt32)theInfo);
+		//qtss_printf("Created reflector session = %p theInfo=%\n", theSession,theInfo);                
 		//put the session's ID into the session map.
 		theErr = sSessionMap->Register(theSession->GetRef());
 		Assert(theErr == QTSS_NoErr);
-
+                if (isPush)
+                    fprintf(stderr, "******** Push to %s created.\n\n", theSessionRef->GetString()->Ptr);
+                
 		// unless we do this, the refcount won't increment (and we'll delete the session prematurely
 		//if (!isPush)
 		{
@@ -2098,6 +2100,7 @@ QTSS_Error DestroySession(QTSS_ClientSessionClosing_Params* inParams)
 
 void RemoveOutput(ReflectorOutput* inOutput, ReflectorSession* inSession, Bool16 killClients)
 {
+
 	// 对ReflectorSession的引用继续处理,包括推送端和客户端
 	Assert(inSession);
 	if (inSession != NULL)
@@ -2129,6 +2132,7 @@ void RemoveOutput(ReflectorOutput* inOutput, ReflectorSession* inSession, Bool16
 		if (theSessionRef != NULL)
 		{
 			//qtss_printf("QTSSReflectorModule.cpp:RemoveOutput UnRegister session =%p refcount=%"   _U32BITARG_   "\n", theSessionRef, theSessionRef->GetRefCount() ) ;       
+			//fprintf(stderr, "QTSSReflectorModule.cpp:RemoveOutput UnRegister session =%p refcount=%"   _U32BITARG_   "\n", theSessionRef, theSessionRef->GetRefCount() ) ;       
 			if (inOutput != NULL)
 			{
 				if (theSessionRef->GetRefCount() > 0)
@@ -2149,7 +2153,7 @@ void RemoveOutput(ReflectorOutput* inOutput, ReflectorSession* inSession, Bool16
 #ifdef REFLECTORSESSION_DEBUG
 				qtss_printf("QTSSReflectorModule.cpp:RemoveOutput UnRegister and delete session =%p refcount=%"   _U32BITARG_   "\n", theSessionRef, theSessionRef->GetRefCount());
 #endif
-                                fprintf(stderr, "******** The car is disconnected.\n\n");
+                                fprintf(stderr, "******** Push to %s stopped.\n\n", theSessionRef->GetString()->Ptr);
 				sSessionMap->UnRegister(theSessionRef);
 				delete inSession;
 			}
@@ -2340,5 +2344,5 @@ Bool16 IsAbsolutePath(StrPtrLen *inPathPtr)
 }
 bool IsUrlExistingInSessionMap(StrPtrLen *url)
 {
-    return (NULL != sSessionMap->Resolve(url));
+    return sSessionMap->IsKeyExistingInTable(url);
 }
