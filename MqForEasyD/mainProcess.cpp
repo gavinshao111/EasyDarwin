@@ -268,7 +268,7 @@ int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
     return 0; 
 }
 
-/* 
+
 int sendStopPushMqWhenThereIsNoClient(const char *url){
     if (NULL == url)
         return -1;
@@ -395,7 +395,7 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
     free(strTopic);
     return 0;
 }
-*/
+
 
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad)
 {
