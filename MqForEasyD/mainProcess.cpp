@@ -205,10 +205,12 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
     strncat(strPayLoad, aVideoReqInfo->req + aVideoReqInfo->urlOfst, aVideoReqInfo->fileNameEndOfst - aVideoReqInfo->urlOfst);
     strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);
     
-    if ('0' == *(aVideoReqInfo->req + aVideoReqInfo->videoTypeOfst))
-        strlcat(strPayLoad, "HD", maxPayLoadLen);
-    else
-        strlcat(strPayLoad, "SD", maxPayLoadLen);
+    if(isBegin) {   //this is unnecessary filed when Stop
+        if ('0' == *(aVideoReqInfo->req + aVideoReqInfo->videoTypeOfst))
+            strlcat(strPayLoad, "HD", maxPayLoadLen);
+        else
+            strlcat(strPayLoad, "SD", maxPayLoadLen);
+    }
     
     strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
     if (isBegin)
@@ -228,7 +230,7 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
     return 0;
 }
 
-int sendStartPushMq(videoReqInfoType* aVideoReqInfo){        
+int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {        
     if (NULL == aVideoReqInfo)
         return -1;        
     
@@ -240,19 +242,33 @@ int sendStartPushMq(videoReqInfoType* aVideoReqInfo){
     
     int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
     if (0 != rc){
-        printf("publishMq to StartPush fail, return code: %d\n", rc);
+        printf("publishMq fail, return code: %d\n", rc);
         return -3;
     }
     
-    return 0;
+    return 0;    
+}
+
+int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
+    if (NULL == aVideoReqInfo)
+        return -1;        
     
+    //char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    char strTopic[maxTopicLen] = {0};
+    char strPayLoad[maxPayLoadLen] = {0};
+    if (0 != generateTopicAndPayLoad(aVideoReqInfo, strTopic, strPayLoad, false))
+        return -2;
+    
+    int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
+    if (0 != rc){
+        printf("publishMq fail, return code: %d\n", rc);
+        return -3;
+    }
+    
+    return 0; 
 }
 
 /* 
- * in ReflectorSession.cpp, fStreamName is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime"
- * in QTSSFileModule.cpp, is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp"
- * so we need 
-*/
 int sendStopPushMqWhenThereIsNoClient(const char *url){
     if (NULL == url)
         return -1;
@@ -379,85 +395,8 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
     free(strTopic);
     return 0;
 }
-/*
-int sendStopPushMqForPauseReq(const char *req)
-{
-    if (NULL == req)
-        return -1;
-  
-    UINT i = 0;
-    UINT clientIdOfst = -1;
-    UINT endOfClientIdOfst = -1;
-
-    
-    i += sizeof("PAUSE") - 1;
-    for (; ' ' == *(req+i); i++);    
-    if (*(req+i) != 'r' ||
-            *(req+ ++i) != 't' ||
-            *(req+ ++i) != 's' ||
-            *(req+ ++i) != 'p' ||
-            *(req+ ++i) != ':' ||
-            *(req+ ++i) != '/' ||
-            *(req+ ++i) != '/')
-        return 2;        
-    
-    for (; ':' != *(req+i); i++){URLERR}
-    ++i;    
-    for (; '/' != *(req+i); i++){URLERR}
-    ++i;      
-    for (; '/' != *(req+i); i++){URLERR}
-    if ('$' != *(req+ ++i)) {
-        //PRINTERR("ClientId")
-        return 12;
-    }        
-    clientIdOfst = ++i;
-    
-    for (; '/' != *(req+i); i++){URLERR}
-    endOfClientIdOfst = i;
-    
-    if (clientIdOfst >= endOfClientIdOfst){
-        printf("URL Format error.\n");return 9;
-    }
-    
-    //strTopic should like  "/carleapmotorCLOUDE20160727inform/videoinfoAsk";
-    //char strTopic[endOfClientIdOfst - clientIdOfst + sizeof(strVideoinfoAsk) + 2] = {0};
-    UINT lenOfStrTopic = endOfClientIdOfst - clientIdOfst + strlen(strVideoinfoAsk) + 4;
-    char *strTopic = (char*)malloc(lenOfStrTopic);
-    memset(strTopic, 0, lenOfStrTopic);
-    *strTopic = '/';
-    strncpy(strTopic + 1 , req + clientIdOfst, endOfClientIdOfst - clientIdOfst);
-    strlcat(strTopic, "/", lenOfStrTopic);
-    strlcat(strTopic, strVideoinfoAsk, lenOfStrTopic);
-
-    char strPayLoad[maxPayLoadLen] = {0};    
-    strlcat(strPayLoad, "{\"ServiceType\":\"", maxPayLoadLen);   
-    strlcat(strPayLoad, strServiceType, maxPayLoadLen);
-    strlcat(strPayLoad, "\",\"Data_Type\":\"", maxPayLoadLen);
-    //strlcat(strPayLoad, strData_Type, maxPayLoadLen);
-    strlcat(strPayLoad, "\",\"URL\":\"", maxPayLoadLen);
-    //strncat(strPayLoad, req + urlOfst, fileNameEndOfst - urlOfst);
-    strlcat(strPayLoad, "\",\"VideoType\":\"", maxPayLoadLen);
-    
-//    if ('0' == *(req + videoTypeOfst))
-//        strlcat(strPayLoad, "HD", maxPayLoadLen);
-//    else
-//        strlcat(strPayLoad, "SD", maxPayLoadLen);
-    
-    strlcat(strPayLoad, "\",\"Operation\":\"", maxPayLoadLen);
-    strlcat(strPayLoad, strOperationStop, maxPayLoadLen);
-    strlcat(strPayLoad, "\"}", maxPayLoadLen);
-    
-    int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
-    if (0 != rc){
-        printf("publishMq to StopPush fail, return code: %d\n", rc);
-        free(strTopic);
-        return -1;
-    }
-    
-    free(strTopic);
-    return 0;
-}
 */
+
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad)
 {
     MQTTClient client;

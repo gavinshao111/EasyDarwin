@@ -17,8 +17,8 @@ typedef struct sVideoReqInfoType{
 }videoReqInfoType;
 
 int sendStartPushMq(videoReqInfoType* aVideoReqInfo);
-int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
-int sendStopPushMqForPauseReq(const char *req);
+//int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
+int sendStopPushMq(videoReqInfoType* aVideoReqInfo);
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad);
 int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo);
 //int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin);

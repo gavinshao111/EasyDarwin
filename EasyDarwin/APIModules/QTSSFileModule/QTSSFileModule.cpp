@@ -51,7 +51,6 @@
 #include <errno.h>
 
 #include "QTSS.h"
-#include "mainProcess.h"
 
 class FileSession
 {
@@ -612,25 +611,12 @@ QTSS_Error DoDescribe(QTSS_StandardRTSP_Params* inParamBlock)
 		(void)QTSS_LockObject(inParamBlock->inRTSPRequest);
 		(void)QTSS_GetValuePtr(inParamBlock->inRTSPRequest, qtssRTSPReqFilePath, 0, (void**)&pathStr.Ptr, &pathStr.Len);
                 
-                //pathStr.Ptr = "/realtime/$1234/1/realtime.sdpsdsd"
-                fprintf(stderr, "******** Desc: 404 ");
+                fprintf(stderr, "******** Desc: 404\n\n");
                 
-                char* strUrl = new char[strlen(pathStr.Ptr+1) + 1 + 50];
-                sprintf(strUrl, "rtsp://120.27.188.84:8888/%s", pathStr.Ptr+1);
-                fprintf(stderr, "strUrl: %s\n", strUrl);
-                int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
-                delete[] strUrl;
-                if (0 == rc){
-                    fprintf(stderr, "******** StopPush MQ sent.\n\n");
-                    qtss_printf("\n\n********************************* Desc: 404 StopPush MQ sent.\n\n\n");
-                }
-
-                else{
-                    fprintf(stderr, "******** sendStopPushMq fial, return code: %d\n\n", rc);
-                    qtss_printf("\n\n********************************* Desc: 404 sendStopPushMq fail, return code: %d\n\n\n", rc);
-                }                      
-
 		QTSS_Error err = QTSSModuleUtils::SendErrorResponse(inParamBlock->inRTSPRequest, qtssClientNotFound, sNoSDPFileFoundErr, &pathStr);
+                
+                //((RTSPRequestInterface*)inParamBlock->inRTSPRequest)->
+                
 		(void)QTSS_UnlockObject(inParamBlock->inRTSPRequest);
 		return err;
 	}

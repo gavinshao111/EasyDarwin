@@ -410,11 +410,12 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 			(void)theModule->CallDispatch(Easy_CMSFreeStream_Role, &theParams);
 			break;
 		}
+/*
                 //fStreamName is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime"
                 // we need splice tobe rtsp://ip:port/$fStreamName.sdp
                 char* strUrl = new char[strlen(fStreamName) + 1 + 50];
                 sprintf(strUrl, "rtsp://120.27.188.84:8888/%s.sdp", fStreamName);
-                
+
 //                StrPtrLen* SocketAIP = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketA())->GetLocalAddrStr();
 //                StrPtrLen* SocketBIP = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketB())->GetLocalAddrStr();
 //                UInt16 SocketAPort = ((ReflectorSocket*)fStreamArray[x]->GetSocketPair()->GetSocketA())->GetLocalPort();
@@ -422,10 +423,13 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 //                fprintf(stderr, "A: %s:%u\n\n", SocketAIP->GetAsCString(), SocketAPort);
 //                fprintf(stderr, "A: %s:%u\n\n", SocketBIP->GetAsCString(), SocketBPort);
                 //fprintf(stderr, "strUrl: %s\n", strUrl);
-                int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
+                
+                int rc = 0;//sendStopPushMq(&videoReqInfo);
                 delete[] strUrl;
-            DateBuffer theDate;
-			DateTranslator::UpdateDateBuffer(&theDate, 0);				
+ */
+                int rc = sendStopPushMq(&videoReqInfo);
+                DateBuffer theDate;
+		DateTranslator::UpdateDateBuffer(&theDate, 0);				
                 if (0 == rc){
                     fprintf(stderr, "******** No APP, StopPush MQ sent. %s\n\n", theDate.GetDateBuffer());
                     qtss_printf("\n\n********************************* StopPush MQ sent. %s\n\n\n", theDate.GetDateBuffer());
