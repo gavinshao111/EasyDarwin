@@ -1440,9 +1440,9 @@ ReflectorSession* FindOrCreateSession(StrPtrLen* inPath, QTSS_StandardRTSP_Param
 		//put the session's ID into the session map.
 		theErr = sSessionMap->Register(theSession->GetRef());
 		Assert(theErr == QTSS_NoErr);
-                if (isPush)
-                    fprintf(stderr, "******** Push to %s created.\n\n", theSessionRef->GetString()->Ptr);
-                
+                if (isPush){
+                    fprintf(stderr, "******** Push to %s created.\n\n", theSession->GetSessionName());
+                }
 		// unless we do this, the refcount won't increment (and we'll delete the session prematurely
 		//if (!isPush)
 		{
@@ -2100,7 +2100,6 @@ QTSS_Error DestroySession(QTSS_ClientSessionClosing_Params* inParams)
 
 void RemoveOutput(ReflectorOutput* inOutput, ReflectorSession* inSession, Bool16 killClients)
 {
-
 	// 对ReflectorSession的引用继续处理,包括推送端和客户端
 	Assert(inSession);
 	if (inSession != NULL)
