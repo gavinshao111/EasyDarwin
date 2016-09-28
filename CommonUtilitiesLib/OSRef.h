@@ -100,7 +100,8 @@ private:
 	//key
 	StrPtrLen   fString;
 
-	//refcounting
+
+        //当有app加入播放的时候，调用refc++
 	UInt32  fRefCount;
 #if DEBUG
 	Bool16  fInATable;
@@ -232,7 +233,9 @@ public:
 	void        Swap(OSRef* newRef);
 
 	UInt32      GetNumRefsInTable() { UInt64 result = fTable.GetNumEntries(); Assert(result < kUInt32_Max); return (UInt32)result; }
-
+        
+        bool IsKeyExistingInTable(StrPtrLen* inUniqueID);
+        
 private:
 
 
