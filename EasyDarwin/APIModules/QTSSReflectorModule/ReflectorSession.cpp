@@ -410,7 +410,7 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 			(void)theModule->CallDispatch(Easy_CMSFreeStream_Role, &theParams);
 			break;
 		}
-/*
+
                 //fStreamName is "realtime/$carleapmotorCLOUDE20160727inform/1/realtime"
                 // we need splice tobe rtsp://ip:port/$fStreamName.sdp
                 char* strUrl = new char[strlen(fStreamName) + 1 + 50];
@@ -424,10 +424,10 @@ void    ReflectorSession::RemoveOutput(ReflectorOutput* inOutput, Bool16 isClien
 //                fprintf(stderr, "A: %s:%u\n\n", SocketBIP->GetAsCString(), SocketBPort);
                 //fprintf(stderr, "strUrl: %s\n", strUrl);
                 
-                int rc = 0;//sendStopPushMq(&videoReqInfo);
+                int rc = sendStopPushMqWhenThereIsNoClient(strUrl);
                 delete[] strUrl;
- */
-                int rc = sendStopPushMq(&videoReqInfo);
+
+                //int rc = sendStopPushMq(&videoReqInfo);
                 DateBuffer theDate;
 		DateTranslator::UpdateDateBuffer(&theDate, 0);				
                 if (0 == rc){
