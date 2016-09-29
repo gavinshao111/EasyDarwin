@@ -249,34 +249,8 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                                         memcpy(inPath.Ptr+9, videoReqInfo.req+videoReqInfo.realOrRecFlagOfst, videoReqInfo.fileNameEndOfst - videoReqInfo.realOrRecFlagOfst);
 
                                         if(!IsUrlExistingInSessionMap(&inPath)){
-                                                fprintf(stderr, "[DEBUG] %s is not ExistingInSessionMap. Waiting for car to push.\n\n", inPath.Ptr);
+                                                fprintf(stderr, "[DEBUG] %s is not ExistingInSessionMap. Waiting for car to push. TID: %lu\n\n", inPath.Ptr, OSThread::GetCurrentThreadID());
                                                 sleep(4);
-                                                if(!IsUrlExistingInSessionMap(&inPath)){
-                                                    DateTranslator::UpdateDateBuffer(&theDate, 0);
-/*                                                    
-                                                    //pathStr.Ptr = "/realtime/$1234/1/realtime.sdpsdsd"
-                                                    //fprintf(stderr, "******** Desc: 404. %s ",  theDate.GetDateBuffer());
-
-                                                    char* strUrl = new char[strlen(pathStr.Ptr+1) + 1 + 50];
-                                                    sprintf(strUrl, "rtsp://120.27.188.84:8888/%s", pathStr.Ptr+1);
-                                                    fprintf(stderr, "strUrl: %s\n", strUrl);
-                                                    int rc = 0;//sendStopPushMqWhenThereIsNoClient(strUrl);
-                                                    delete[] strUrl;
-*/
-                                                    fprintf(stderr, "******** Didn't receive Push from car, APP will disconnect. %s\n", theDate.GetDateBuffer());
-                                                    int rc1 = sendStopPushMq(&videoReqInfo);
-                                                    if (0 == rc1){
-                                                        fprintf(stderr, "StopPush MQ sent.\n\n");
-                                                        qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
-                                                    }
-                                                    else{
-                                                        fprintf(stderr, "sendStopPushMq fail, return code: %d\n\n", rc);
-                                                        qtss_printf("\n\n********************************* sendStopPushMq fail, return code: %d\n\n\n", rc);
-                                                    }                      
-                                                }
-                                                else
-                                                    fprintf(stderr, "***************************** Receive Push from car after 4s\n\n");
-                                                    
                                         }
                                         else
                                                 fprintf(stderr, "[DEBUG] %s is ExistingInSessionMap.\n\n", inPath.Ptr);

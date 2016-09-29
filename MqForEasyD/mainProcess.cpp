@@ -231,7 +231,7 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
 }
 
 int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
-#if IGNMQ
+#ifdef IGNMQ
     return 0;
 #endif    
     if (NULL == aVideoReqInfo)
@@ -251,6 +251,15 @@ int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
     
     return 0;    
 }
+
+int sendStopPushMq(char* ip, int port, char *filePath) {
+#if IGNMQ
+    return 0;
+#else    
+    return 0;
+#endif    
+}
+
 
 int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
 #if IGNMQ

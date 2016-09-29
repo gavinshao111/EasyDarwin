@@ -19,6 +19,9 @@ typedef struct sVideoReqInfoType{
 int sendStartPushMq(videoReqInfoType* aVideoReqInfo);
 int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
 int sendStopPushMq(videoReqInfoType* aVideoReqInfo);
+
+//filePath should like: /realtime/$1234/1/realtime.sdp
+int sendStopPushMq(char* ip, int port, char *filePath);
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad);
 int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo);
 //int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin);
