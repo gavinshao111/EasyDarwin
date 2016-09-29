@@ -23,24 +23,25 @@ int main(int argc, char* argv[])
 {
     string url = "tcp://120.27.188.84:1883";
     string payload = "Hello world.";
-    string topic = "/MQTTTest";
+    string topic = "/1234/videoinfoAsk";
     string tmp;
-
-    cout<<"Default Server URL is "<<url<<"  Override? (y / n) ";
-    cin>>tmp;
-    if('y' == tmp.at(0) || 'Y' == tmp.at(0)){
+	char yOrN = 'n';
+	
+    cout<<"Default Server URL is "<<url<<"  Ok? (y / n) ";
+	yOrN = getchar();
+	if('n' == yOrN || 'N' == yOrN){
         cout<<"Input Server URL: ";
         cin>>url;    
     }
-    cout<<"Default TOPIC is "<<topic<<"  Override? (y / n) ";
-    cin>>tmp;
-    if('y' == tmp.at(0) || 'Y' == tmp.at(0)){
+    cout<<"Default TOPIC is "<<topic<<"  Ok? (y / n) ";
+	yOrN = getchar();
+	if('n' == yOrN || 'N' == yOrN){
         cout<<"Input TOPIC: ";
         cin>>topic;    
     }    
-    cout<<"Default PAYLOAD is "<<payload<<"  Override? (y / n) ";
-    cin>>tmp;
-    if('y' == tmp.at(0) || 'Y' == tmp.at(0)){
+    cout<<"Default PAYLOAD is "<<payload<<"  Ok? (y / n) ";
+	yOrN = getchar();
+	if('n' == yOrN || 'N' == yOrN){
         cout<<"Input PAYLOAD: ";
         cin>>payload;    
     }
