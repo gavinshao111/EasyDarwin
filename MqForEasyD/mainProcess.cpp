@@ -230,7 +230,10 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
     return 0;
 }
 
-int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {        
+int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
+#if IGNMQ
+    return 0;
+#endif    
     if (NULL == aVideoReqInfo)
         return -1;        
     
@@ -250,6 +253,9 @@ int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
 }
 
 int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
+#if IGNMQ
+    return 0;
+#endif  
     if (NULL == aVideoReqInfo)
         return -1;        
     
@@ -270,6 +276,9 @@ int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
 
 
 int sendStopPushMqWhenThereIsNoClient(const char *url){
+#if IGNMQ
+    return 0;
+#endif  
     if (NULL == url)
         return -1;
     

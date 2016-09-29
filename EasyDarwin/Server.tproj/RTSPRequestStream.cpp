@@ -212,6 +212,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 			StrPtrLen str(fRequest);
 			str.PrintStrEOL("\n\r\n", "\n");// print the request but stop on \n\r\n and add a \n afterwards.
 			
+
                         int i = 0;
                         bool IsFromCar = false;
                         videoReqInfoType videoReqInfo={0};
