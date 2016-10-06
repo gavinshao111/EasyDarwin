@@ -52,6 +52,7 @@
 #endif
 
 #include "GetSession.h"
+#include <map>
 
 #define REFLECTORSESSION_DEBUG 1
 
@@ -90,6 +91,8 @@ static const StrPtrLen  kCacheControlHeader("no-cache");
 static QTSS_PrefsObject sServerPrefs = NULL;
 static QTSS_ServerObject sServer = NULL;
 static QTSS_ModulePrefsObject sPrefs = NULL;
+
+static map<char*,      sSessionMap = NULL;
 
 //
 // Prefs
@@ -1441,9 +1444,17 @@ ReflectorSession* FindOrCreateSession(StrPtrLen* inPath, QTSS_StandardRTSP_Param
 		theErr = sSessionMap->Register(theSession->GetRef());
 		Assert(theErr == QTSS_NoErr);
                 
-                if (isPush)
-                    fprintf(stderr, "******** Push to %s created.\n\n", theSession->GetSessionName());
-                
+                if (isPush) {
+			DateBuffer theDate;                        
+                        DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
+                    fprintf(stderr, "******** Push to %s created. %s\n\n", theSession->GetSessionName(), theDate.GetDateBuffer());
+                    
+                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp".
+                                       
+                    //StrPtrLen inPath("./Movies/realtime/$1234/1/realtime.sdp");                   
+                    fprintf(stderr, "******** After Register: %d\n\n", IsUrlExistingInSessionMap(theSession->GetRef()->GetString()));
+                    
+                }
 
 		// unless we do this, the refcount won't increment (and we'll delete the session prematurely
 		//if (!isPush)

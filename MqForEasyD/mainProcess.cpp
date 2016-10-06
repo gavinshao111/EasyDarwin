@@ -47,39 +47,41 @@ const UINT maxTopicLen= 500;
  * 
    
  */
-int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo)
+ 
+int parseReq(const char *areq, videoReqInfoType* aVideoReqInfo, const bool startFromIp)
 {
     if (NULL == areq || NULL == aVideoReqInfo)
         return -1;
-    
     aVideoReqInfo->req = areq;
     
     UINT i = 0;    
-    for(;' ' == *(areq+i); i++)
-        if('\0' == *(areq+i))
-            return -1;    
-    if ('O' != *(areq+i) && 'o' != *(areq+i)){
-        aVideoReqInfo->ignore = true;
-        goto getUserAgentAndRet;        
+    if(!startFromIp) {
+        for(;' ' == *(areq+i); i++)
+            if('\0' == *(areq+i))
+                return -1;    
+        if ('O' != *(areq+i) && 'o' != *(areq+i)){
+            aVideoReqInfo->ignore = true;
+            goto getUserAgentAndRet;        
+        }
+
+        for(;' ' != *(areq+i); i++)
+            if('\0' == *(areq+i))
+                return -1;       
+    
+        aVideoReqInfo->urlOfst = ++i;
+        if (*(areq+i) != 'r' ||
+                *(areq+ ++i) != 't' ||
+                *(areq+ ++i) != 's' ||
+                *(areq+ ++i) != 'p' ||
+                *(areq+ ++i) != ':' ||
+                *(areq+ ++i) != '/' ||
+                *(areq+ ++i) != '/')
+            //PRINTERR("RTSP")
+            return -2;
+    
+        ++i;
     }
-    
-    for(;' ' != *(areq+i); i++)
-        if('\0' == *(areq+i))
-            return -1;
-    
-    
-    aVideoReqInfo->urlOfst = ++i;
-    if (*(areq+i) != 'r' ||
-            *(areq+ ++i) != 't' ||
-            *(areq+ ++i) != 's' ||
-            *(areq+ ++i) != 'p' ||
-            *(areq+ ++i) != ':' ||
-            *(areq+ ++i) != '/' ||
-            *(areq+ ++i) != '/')
-        //PRINTERR("RTSP")
-        return -2;
-        
-    aVideoReqInfo->ipOfst = ++i;
+    aVideoReqInfo->ipOfst = i;
     
     for (; ':' != *(areq+i); i++){AURLERR}
     aVideoReqInfo->portOfst = ++i;
@@ -158,6 +160,8 @@ getUserAgentAndRet:
     return 0;
 }
 
+//int parseUrl(char *url, )
+
 /*
  * 客户端发过来的URL例子:
 rtsp://ip:port/realtime/$clientid/VideoType/realtime.sdp
@@ -177,7 +181,7 @@ Accept: application/sdp\r\n
 \r\n
  *  */
 
-static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin)
+static int generateTopicAndPayLoad(const videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin)
 {
     if (NULL == aVideoReqInfo || NULL == strTopic || NULL == strPayLoad)
         return -1;
@@ -230,7 +234,7 @@ static int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTop
     return 0;
 }
 
-int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
+int sendStartPushMq(const videoReqInfoType* aVideoReqInfo) {
 #ifdef IGNMQ
     return 0;
 #endif    
@@ -252,38 +256,32 @@ int sendStartPushMq(videoReqInfoType* aVideoReqInfo) {
     return 0;    
 }
 
-int sendStopPushMq(char* ip, int port, char *filePath) {
-#if IGNMQ
-    return 0;
-#else    
-    return 0;
-#endif    
-}
-
-
-int sendStopPushMq(videoReqInfoType* aVideoReqInfo) {
+int sendStopPushMq(const char *urlWithoutRTSP) {
 #if IGNMQ
     return 0;
 #endif  
-    if (NULL == aVideoReqInfo)
-        return -1;        
+    if (NULL == urlWithoutRTSP)
+        return -1;
     
-    //char *strTopic = (char*)malloc(1 + videoTypeOfst - clientIdOfst + strlen(strVideoinfoAsk) + 2);
+    videoReqInfoType videoReqInfo={0};
+    if (0 != parseReq(urlWithoutRTSP, &videoReqInfo, true))
+        return -2;      
+        
     char strTopic[maxTopicLen] = {0};
     char strPayLoad[maxPayLoadLen] = {0};
-    if (0 != generateTopicAndPayLoad(aVideoReqInfo, strTopic, strPayLoad, false))
-        return -2;
+    if (0 != generateTopicAndPayLoad(&videoReqInfo, strTopic, strPayLoad, false))
+        return -3;
     
     int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
     if (0 != rc){
         printf("publishMq fail, return code: %d\n", rc);
-        return -3;
+        return -4;
     }
     
     return 0; 
 }
 
-
+/*
 int sendStopPushMqWhenThereIsNoClient(const char *url){
 #if IGNMQ
     return 0;
@@ -413,10 +411,9 @@ int sendStopPushMqWhenThereIsNoClient(const char *url){
     free(strTopic);
     return 0;
 }
+*/
 
-
-int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad)
-{
+int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad) {
     MQTTClient client;
     int rc = 0;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;

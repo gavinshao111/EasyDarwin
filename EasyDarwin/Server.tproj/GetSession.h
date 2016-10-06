@@ -14,6 +14,17 @@
 #ifndef GETSESSION_H
 #define GETSESSION_H
 
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+typedef struct sCondVariableType {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;    
+}condVariableType;
+
 bool IsUrlExistingInSessionMap(StrPtrLen *url);
 
 #endif /* GETSESSION_H */
