@@ -213,11 +213,9 @@ QTSS_Error RTSPRequestStream::ReadRequest()
 			str.PrintStrEOL("\n\r\n", "\n");// print the request but stop on \n\r\n and add a \n afterwards.
 			
 
-                        int i = 0;
-                        bool IsFromCar = false;
                         videoReqInfoType videoReqInfo={0};
                         
-                        int rc = getUrlAndUserAgent(fRequest.Ptr, &videoReqInfo);
+                        int rc = parseReq(fRequest.Ptr, &videoReqInfo, false);
 			DateTranslator::UpdateDateBuffer(&theDate, 0);
                         if (0 != rc)
                             fprintf(stderr, "[WARN] getUrlAndUserAgent error, return code: %d\n\n", rc);

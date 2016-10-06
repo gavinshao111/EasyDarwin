@@ -20,10 +20,39 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <mutex>                // std::mutex, std::unique_lock
+#include <condition_variable>    // std::condition_variable
+#include <string>
+using namespace std;
 typedef struct sCondVariableType {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;    
+//    condVariableType(mutex* _mtx, condition_variable* _cv){
+//        mtx = _mtx;
+//        cv = _cv;
+//    }
+    mutex mtx; // 全局互斥锁.
+    condition_variable cv; // 全局条件变量.   
 }condVariableType;
+
+class CondVariable {
+public:
+    
+    int Register(string key){
+        condVariableType *ct = new condVariableType();
+        condVariableMap.insert(pair <key, ct>);
+        return 0;
+    }
+    int UnRegister(string key){
+        return (1 == condVariableMap.erase(string key) ? 1 : -1; 
+    }
+    bbol waitForCond(string key){
+        
+    }
+    
+private:
+    static map<string, condVariableType*>condVariableMap;
+}
+
+
 
 bool IsUrlExistingInSessionMap(StrPtrLen *url);
 

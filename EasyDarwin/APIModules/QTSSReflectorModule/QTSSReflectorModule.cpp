@@ -92,7 +92,7 @@ static QTSS_PrefsObject sServerPrefs = NULL;
 static QTSS_ServerObject sServer = NULL;
 static QTSS_ModulePrefsObject sPrefs = NULL;
 
-static map<char*,      sSessionMap = NULL;
+//static std::map<char*, condVariableType>condVariableMap;
 
 //
 // Prefs
@@ -419,7 +419,7 @@ QTSS_Error Initialize(QTSS_Initialize_Params* inParams)
 	QTSSModuleUtils::SetupSupportedMethods(inParams->inServer, sSupportedMethods, 7);
 
 	RereadPrefs();
-
+        
 	return QTSS_NoErr;
 }
 
@@ -2359,3 +2359,5 @@ bool IsUrlExistingInSessionMap(StrPtrLen *url)
 {
     return sSessionMap->IsKeyExistingInTable(url);
 }
+
+condVariableMap* getCondVbMap(void)

@@ -2,7 +2,7 @@
 #define MAINPROCESS_H
 
 typedef struct sVideoReqInfoType{
-    char *req;
+    const char *req;
     int urlOfst;
     int ipOfst;
     int portOfst;
@@ -16,15 +16,15 @@ typedef struct sVideoReqInfoType{
     // only deal app play req, like OPTION rtsp://10.34.16.180:8888/realtime/$1234/1/realtime.sdp
 }videoReqInfoType;
 
-int sendStartPushMq(videoReqInfoType* aVideoReqInfo);
-int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
-int sendStopPushMq(videoReqInfoType* aVideoReqInfo);
+int sendStartPushMq(const videoReqInfoType* aVideoReqInfo);
+//int sendStopPushMqWhenThereIsNoClient(const char *fStreamName);
+//int sendStopPushMq(videoReqInfoType* aVideoReqInfo);
 
 //filePath should like: /realtime/$1234/1/realtime.sdp
-int sendStopPushMq(char* ip, int port, char *filePath);
+int sendStopPushMq(const char *urlWithoutRTSP);
 int publishMq(const char *url, const char *clientId, const char *Topic, const char *PayLoad);
-int getUrlAndUserAgent(char *areq, videoReqInfoType* aVideoReqInfo);
-//int generateTopicAndPayLoad(videoReqInfoType* aVideoReqInfo, char* strTopic, char *strPayLoad, bool isBegin);
+int parseReq(const char *areq, videoReqInfoType* aVideoReqInfo, const bool startFromIp);
+
 
 #endif /* MAINPROCESS_H */
 

@@ -608,9 +608,14 @@ void RTSPRequestInterface::WriteStandardHeaders()
 		}
 		AppendHeader(qtssCSeqHeader, fHeaderDictionary.GetValue(qtssCSeqHeader));
                 
+                char *ip = GetSession()->GetSocket()->GetLocalAddrStr()->Ptr;
+                int port = (int)GetSession()->GetSocket()->GetLocalPort();
+                char* urlWithoutRTSP = new char[strlen(ip) + 20 + strlen(fFilePath) + 1];
+                memset(urlWithoutRTSP, 0, strlen(ip) + 20 + strlen(fFilePath) + 1);
+                sprintf(urlWithoutRTSP, "%s:%d%s", ip, port, fFilePath);
                 
                 fprintf(stderr, "[INFO] Haven't receive Push for %s from car, APP will disconnect.\n", fFilePath);
-                int rc = sendStopPushMq(GetSession()->GetSocket()->GetLocalAddrStr()->Ptr, (int)GetSession()->GetSocket()->GetLocalPort(), fFilePath);
+                int rc = sendStopPushMq(urlWithoutRTSP);
                 if (0 == rc){
                     fprintf(stderr, "[INFO] StopPush MQ sent.\n\n");
                     qtss_printf("\n\n********************************* StopPush MQ sent.\n\n\n");
