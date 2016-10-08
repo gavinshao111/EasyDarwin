@@ -126,7 +126,7 @@ int parseReq(const char *areq, videoReqInfoType* aVideoReqInfo, const bool start
 
     aVideoReqInfo->fileNameOfst = ++i;
 
-    for (; '\0' != *(areq+i) && ' ' != *(areq+i) && '/' != *(areq+i); i++){AURLERR}
+    for (; '\0' != *(areq+i) && ' ' != *(areq+i) && '/' != *(areq+i); i++);
     aVideoReqInfo->fileNameEndOfst = i;
 
 
@@ -260,17 +260,21 @@ int sendStopPushMq(const char *urlWithoutRTSP) {
         return -1;
     
     videoReqInfoType videoReqInfo={0};
-    if (0 != parseReq(urlWithoutRTSP, &videoReqInfo, true))
-        return -2;      
-        
+    int rc = parseReq(urlWithoutRTSP, &videoReqInfo, true);
+    if (0 != rc){
+        fprintf(stderr, "parseReq fail, return code: %d\n", rc);
+        return -2; 
+    }
     char strTopic[maxTopicLen] = {0};
     char strPayLoad[maxPayLoadLen] = {0};
-    if (0 != generateTopicAndPayLoad(&videoReqInfo, strTopic, strPayLoad, false))
-        return -3;
-    
-    int rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
+    rc = generateTopicAndPayLoad(&videoReqInfo, strTopic, strPayLoad, false);
     if (0 != rc){
-        printf("publishMq fail, return code: %d\n", rc);
+        fprintf(stderr, "generateTopicAndPayLoad fail, return code: %d\n", rc);
+        return -3;
+    }
+    rc = publishMq(strMQServerAddress, strClientIdForMQ, strTopic, strPayLoad);
+    if (0 != rc){
+        fprintf(stderr, "publishMq fail, return code: %d\n", rc);
         return -4;
     }
     
