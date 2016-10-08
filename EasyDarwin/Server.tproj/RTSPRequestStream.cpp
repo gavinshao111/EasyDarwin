@@ -218,7 +218,7 @@ QTSS_Error RTSPRequestStream::ReadRequest()
                         int rc = parseReq(fRequest.Ptr, &videoReqInfo, false);
 			DateTranslator::UpdateDateBuffer(&theDate, 0);
                         if (0 != rc)
-                            fprintf(stderr, "[WARN] getUrlAndUserAgent error, return code: %d\n\n", rc);
+                            fprintf(stderr, "[WARN] parseReq error, return code: %d\n\n", rc);
                         else {                        
                             fprintf(stderr, "%.6s %.9s %s TID: %lu\n\n", fRequest.Ptr, fRequest.Ptr+videoReqInfo.userAgentOfst, theDate.GetDateBuffer(), OSThread::GetCurrentThreadID());
                             if (!videoReqInfo.ignore) {

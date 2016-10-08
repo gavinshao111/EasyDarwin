@@ -55,6 +55,7 @@ rtsp://120.27.188.84:8888/record/$carleapmotorCLOUDE20160727inform/1/2016-08-30_
 
 test:
 rtsp://120.27.188.84:8888/realtime/$1234/1/realtime.sdp
+rtsp://192.168.61.128:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp
 
 play record in EasyDarwin:
 rtsp://120.27.188.84:8888/testAfterHint.mp4

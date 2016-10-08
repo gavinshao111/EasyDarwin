@@ -235,9 +235,7 @@ static int generateTopicAndPayLoad(const videoReqInfoType* aVideoReqInfo, char* 
 }
 
 int sendStartPushMq(const videoReqInfoType* aVideoReqInfo) {
-#ifdef IGNMQ
-    return 0;
-#endif    
+ 
     if (NULL == aVideoReqInfo)
         return -1;        
     
@@ -257,9 +255,7 @@ int sendStartPushMq(const videoReqInfoType* aVideoReqInfo) {
 }
 
 int sendStopPushMq(const char *urlWithoutRTSP) {
-#if IGNMQ
-    return 0;
-#endif  
+
     if (NULL == urlWithoutRTSP)
         return -1;
     

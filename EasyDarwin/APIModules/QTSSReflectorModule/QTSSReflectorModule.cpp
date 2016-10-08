@@ -52,7 +52,6 @@
 #endif
 
 #include "GetSession.h"
-#include <map>
 
 #define REFLECTORSESSION_DEBUG 1
 
@@ -91,8 +90,6 @@ static const StrPtrLen  kCacheControlHeader("no-cache");
 static QTSS_PrefsObject sServerPrefs = NULL;
 static QTSS_ServerObject sServer = NULL;
 static QTSS_ModulePrefsObject sPrefs = NULL;
-
-//static std::map<char*, condVariableType>condVariableMap;
 
 //
 // Prefs
@@ -1354,8 +1351,7 @@ Bool16 InfoPortsOK(QTSS_StandardRTSP_Params* inParams, SDPSourceInfo* theInfo, S
 }
 
 ReflectorSession* FindOrCreateSession(StrPtrLen* inPath, QTSS_StandardRTSP_Params* inParams, StrPtrLen* inData, Bool16 isPush, Bool16 *foundSessionPtr)
-{    
-
+{
 	// ¸ù¾ÝinPath²éÕÒReflectorSession
 	OSMutexLocker locker(sSessionMap->GetMutex());
 	OSRef* theSessionRef = sSessionMap->Resolve(inPath);
@@ -1445,15 +1441,9 @@ ReflectorSession* FindOrCreateSession(StrPtrLen* inPath, QTSS_StandardRTSP_Param
 		Assert(theErr == QTSS_NoErr);
                 
                 if (isPush) {
-			DateBuffer theDate;                        
-                        DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
-                    fprintf(stderr, "******** Push to %s created. %s\n\n", theSession->GetSessionName(), theDate.GetDateBuffer());
-                    
-                    // we need str.Prt = "./Movies/realtime/$1234/1/realtime.sdp".
-                                       
-                    //StrPtrLen inPath("./Movies/realtime/$1234/1/realtime.sdp");                   
-                    fprintf(stderr, "******** After Register: %d\n\n", IsUrlExistingInSessionMap(theSession->GetRef()->GetString()));
-                    
+                    DateBuffer theDate;                        
+                    DateTranslator::UpdateDateBuffer(&theDate, 0); // get the current GMT date and time
+                    fprintf(stderr, "******** Push to %s created. %s\n\n", theSession->GetSessionName(), theDate.GetDateBuffer());                    
                 }
 
 		// unless we do this, the refcount won't increment (and we'll delete the session prematurely
@@ -2359,5 +2349,3 @@ bool IsUrlExistingInSessionMap(StrPtrLen *url)
 {
     return sSessionMap->IsKeyExistingInTable(url);
 }
-
-condVariableMap* getCondVbMap(void)
