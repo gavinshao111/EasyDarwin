@@ -608,7 +608,7 @@ void RTSPRequestInterface::WriteStandardHeaders()
 		}
 		AppendHeader(qtssCSeqHeader, fHeaderDictionary.GetValue(qtssCSeqHeader));
                 
-                if(fFilePath) {
+                if(NULL != fFilePath && 0 != *(fFilePath)) {
                     char *ip = GetSession()->GetSocket()->GetLocalAddrStr()->Ptr;
                     int port = (int)GetSession()->GetSocket()->GetLocalPort();
                     char* urlWithoutRTSP = new char[strlen(ip) + 20 + strlen(fFilePath) + 1];
