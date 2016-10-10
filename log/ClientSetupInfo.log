@@ -1,0 +1,75 @@
+TCP:
+#C->S:
+#time: ms=7423736 date=Sun, 09 Oct 2016 03:44:38 GMT
+#server: ip=120.27.188.84 port=8888
+#client: ip=61.130.183.5 port=45667
+SETUP rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp/trackID=0 RTSP/1.0\r\n
+CSeq: 4\r\n
+User-Agent: LibVLC/2.2.4 (LIVE555 Streaming Media v2016.02.22)\r\n
+Transport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n
+\r\n
+
+
+
+UDP:
+#C->S:
+#time: ms=7721042 date=Sun, 09 Oct 2016 03:49:36 GMT
+#server: ip=120.27.188.84 port=8888
+#client: ip=61.130.183.5 port=48236
+SETUP rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp/trackID=0 RTSP/1.0\r\n
+CSeq: 4\r\n
+User-Agent: LibVLC/2.2.4 (LIVE555 Streaming Media v2016.02.22)\r\n
+Transport: RTP/AVP;unicast;client_port=56186-56187\r\n
+\r\n
+
+
+
+
+windows vlc play successful
+#S->C:
+#time: ms=4627798 date=Sun, 09 Oct 2016 11:54:06 GMT
+RTSP/1.0 200 OK\r\n
+Server: EasyDarwin/7.0.5 (Build/16.0518; Platform/Linux; Release/EasyDarwin; State/Development; )\r\n
+Cseq: 5\r\n
+Session: 3583684244688956863\r\n
+Range: npt=now-\r\n
+RTP-Info: url=rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp/trackID=0\r\n
+\r\n
+
+
+android vlc send teardown but ED didn't reponse:
+
+#C->S:
+#time: ms=56511876 date=Mon, 10 Oct 2016 02:18:51 GMT
+#server: ip=120.27.188.84 port=8888
+#client: ip=61.130.183.5 port=41838
+TEARDOWN rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp/trackID=0 RTSP/1.0\r\n
+CSeq: 6\r\n
+User-Agent: LibVLC/3.0.0-git (LIVE555 Streaming Media v2016.07.19)\r\n
+Session: 6610278720332568678\r\n
+\r\n
+
+
+
+windows vlc send teardown then ED reponse:
+
+#C->S:
+#time: ms=56329624 date=Mon, 10 Oct 2016 02:15:48 GMT
+#server: ip=120.27.188.84 port=8888
+#client: ip=61.130.183.5 port=38766
+TEARDOWN rtsp://120.27.188.84:8888/realtime/$carleapmotorCLOUDE20160727inform/1/realtime.sdp/ RTSP/1.0\r\n
+CSeq: 6\r\n
+User-Agent: LibVLC/2.2.4 (LIVE555 Streaming Media v2016.02.22)\r\n
+Session: 6668269416366394688\r\n
+\r\n
+
+
+#S->C:
+#time: ms=56329624 date=Mon, 10 Oct 2016 02:15:48 GMT
+RTSP/1.0 200 OK\r\n
+Server: EasyDarwin/7.0.5 (Build/16.0518; Platform/Linux; Release/EasyDarwin; State/Development; )\r\n
+Cseq: 6\r\n
+Session: 6668269416366394688\r\n
+Connection: Close\r\n
+\r\n
+QTSSReflectorModule.cpp:RemoveOutput Session =0x7f4cf40064a0 refcount=2
