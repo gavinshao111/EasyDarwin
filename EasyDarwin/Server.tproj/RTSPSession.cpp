@@ -1886,6 +1886,15 @@ void RTSPSession::SetupRequest()
 			return;
 	}
 
+	if (fRequest->GetMethod() == qtssSetupMethod)
+	{
+		if(fRequest->GetTransportType() != qtssRTPTransportTypeTCP)
+		{
+			fprintf(stderr, "[DEBUG] Recive UDP Req.\n\n");
+		}
+		else
+			fprintf(stderr, "[DEBUG] Recive TCP Req.\n\n");
+	}
         
 	OSMutexLocker locker(fRTPSession->GetMutex());
 	UInt32 headerBits = fRequest->GetBandwidthHeaderBits();
